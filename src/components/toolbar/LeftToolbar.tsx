@@ -17,10 +17,13 @@ import {
   MessageSquare,
   Trash2,
   Table as TableIcon,
+  Video,
+  Music,
+  Home,
 } from 'lucide-react';
 
 export const LeftToolbar: React.FC = () => {
-  const { addObject, trash, pan, zoom } = useBoard();
+  const { addObject, trash, pan, zoom, setViewMode } = useBoard();
   const [showTrashModal, setShowTrashModal] = useState(false);
 
   const handleAddAtCenter = (type: ObjectType) => {
@@ -42,6 +45,8 @@ export const LeftToolbar: React.FC = () => {
     { type: 'board', label: 'Board', icon: <FolderKanban className="w-5 h-5" />, color: 'hover:text-cyan-500 hover:bg-cyan-500/10' },
     { type: 'column', label: 'Column', icon: <Columns className="w-5 h-5" />, color: 'hover:text-slate-700 hover:bg-slate-500/10' },
     { type: 'image', label: 'Image', icon: <ImageIcon className="w-5 h-5" />, color: 'hover:text-purple-500 hover:bg-purple-500/10' },
+    { type: 'video', label: 'Video', icon: <Video className="w-5 h-5" />, color: 'hover:text-fuchsia-500 hover:bg-fuchsia-500/10' },
+    { type: 'audio', label: 'Audio', icon: <Music className="w-5 h-5" />, color: 'hover:text-pink-500 hover:bg-pink-500/10' },
     { type: 'document', label: 'Document', icon: <FileDown className="w-5 h-5" />, color: 'hover:text-rose-500 hover:bg-rose-500/10' },
     { type: 'sketch', label: 'Draw', icon: <Edit3 className="w-5 h-5" />, color: 'hover:text-pink-500 hover:bg-pink-500/10' },
     { type: 'color', label: 'Color', icon: <Palette className="w-5 h-5" />, color: 'hover:text-violet-500 hover:bg-violet-500/10' },
@@ -52,8 +57,24 @@ export const LeftToolbar: React.FC = () => {
 
   return (
     <>
-      <aside className="fixed left-4 top-1/2 -translate-y-1/2 z-40 bg-white/90 backdrop-blur-md border border-slate-200 shadow-2xl rounded-2xl p-2 flex flex-col items-center gap-1.5 transition-all">
-        {TOOL_ITEMS.map((item) => (
+      <aside className="fixed left-4 top-1/2 -translate-y-1/2 z-40 bg-white/90 backdrop-blur-md border border-slate-200 shadow-2xl rounded-2xl p-2 flex flex-col items-center gap-1.5 transition-all max-h-[calc(100vh-2rem)]">
+        
+        {/* Dashboard Home Button */}
+        <button
+          onClick={() => setViewMode('dashboard')}
+          className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all group relative"
+          title="Back to Dashboard"
+        >
+          <Home className="w-5 h-5" />
+          <span className="absolute left-14 bg-slate-900 text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
+            Dashboard
+          </span>
+        </button>
+        
+        <div className="w-6 h-px bg-slate-200 my-1 shrink-0" />
+
+        <div className="flex flex-col items-center gap-1.5 overflow-y-auto overflow-x-hidden w-full px-1 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {TOOL_ITEMS.map((item) => (
           <div
             key={item.type}
             draggable
@@ -69,13 +90,14 @@ export const LeftToolbar: React.FC = () => {
             </span>
           </div>
         ))}
+        </div>
 
-        <div className="w-6 h-px bg-slate-200 my-1" />
+        <div className="w-6 h-px bg-slate-200 my-1 shrink-0" />
 
         {/* Trash Button */}
         <button
           onClick={() => setShowTrashModal(true)}
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 hover:text-red-600 hover:bg-red-50 relative group transition-all"
+          className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-slate-500 hover:text-red-600 hover:bg-red-50 relative group transition-all"
           title="Trash"
         >
           <Trash2 className="w-5 h-5" />
