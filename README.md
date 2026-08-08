@@ -33,5 +33,5 @@ See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rule
 
 
 We here use node and npm .
->npm install
+>npm install |
 >npm run dev
