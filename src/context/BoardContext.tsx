@@ -18,8 +18,6 @@ import {
   DEFAULT_HOME_BOARD,
   INITIAL_TEMPLATES,
 } from '../utils/storage';
-import { findFreeSpace } from '../utils/geometry';
-import { useAuth } from './AuthContext';
 
 interface BoardHistoryState {
   objects: CanvasObject[];
@@ -363,14 +361,12 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           break;
       }
 
-      const { x: safeX, y: safeY } = findFreeSpace(x, y, width, height, objects);
-
       const newObject: CanvasObject = {
         id,
         boardId: currentBoardId,
         type,
-        x: safeX,
-        y: safeY,
+        x,
+        y,
         width,
         height,
         zIndex: maxZIndex + 1,
