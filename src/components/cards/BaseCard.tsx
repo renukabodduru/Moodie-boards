@@ -171,6 +171,12 @@ export const BaseCard: React.FC<BaseCardProps> = ({
 
     if (e.button !== 0) return;
 
+    const target = e.target as HTMLElement;
+    if (target.closest('input, textarea, button, audio, video, a, label, select')) {
+      e.stopPropagation();
+      return;
+    }
+
     e.stopPropagation();
 
     const multi = e.shiftKey;
