@@ -5,7 +5,10 @@ import { Bold, Italic, List, CheckSquare } from 'lucide-react';
 
 export const NoteCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
   const { updateObject } = useBoard();
-  const [text, setText] = useState<string>(object.content.text || '');
+  
+  // Clean up any old cards that had the placeholder accidentally saved as real text
+  const initialText = object.content.text === 'Start typing note...' ? '' : (object.content.text || '');
+  const [text, setText] = useState<string>(initialText);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
