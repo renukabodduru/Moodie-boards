@@ -19,7 +19,7 @@ import { ColorCard } from '../cards/ColorCard';
 import { MapCard } from '../cards/MapCard';
 import { SketchCard } from '../cards/SketchCard';
 import { CommentCard } from '../cards/CommentCard';
-import { screenToCanvas } from '../../utils/geometry';
+import { screenToCanvas, getNearestAnchor } from '../../utils/geometry';
 import { ObjectType } from '../../types/board';
 
 export const Canvas: React.FC = () => {
@@ -35,7 +35,19 @@ export const Canvas: React.FC = () => {
     draggingConnection,
     updateDraggingConnection,
     cancelDraggingConnection,
+    finishDraggingConnection,
     userPresences,
+    activeGuides,
+    deleteSelectedObjects,
+    duplicateSelectedObjects,
+    groupSelectedObjects,
+    ungroupSelectedObjects,
+    copySelectedObjects,
+    pasteObjects,
+    undo,
+    redo,
+    selectedIds,
+    lockObject,
   } = useBoard();
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -46,11 +58,49 @@ export const Canvas: React.FC = () => {
   const marqueeStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const [spacePressed, setSpacePressed] = useState(false);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && !e.repeat && (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA')) {
+      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA' || (document.activeElement as HTMLElement)?.isContentEditable) {
+        return;
+      }
+
+      if (e.code === 'Space' && !e.repeat) {
         setSpacePressed(true);
+      }
+
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        deleteSelectedObjects();
+      }
+
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key.toLowerCase() === 'c') {
+          copySelectedObjects();
+        } else if (e.key.toLowerCase() === 'v') {
+          pasteObjects();
+        } else if (e.key.toLowerCase() === 'd') {
+          e.preventDefault();
+          duplicateSelectedObjects();
+        } else if (e.key.toLowerCase() === 'g') {
+          e.preventDefault();
+          if (e.shiftKey) {
+            ungroupSelectedObjects();
+          } else {
+            groupSelectedObjects();
+          }
+        } else if (e.key.toLowerCase() === 'z') {
+          e.preventDefault();
+          if (e.shiftKey) {
+            redo();
+          } else {
+            undo();
+          }
+        } else if (e.key.toLowerCase() === 'l') {
+          e.preventDefault();
+          const shouldLock = !e.shiftKey;
+          selectedIds.forEach((id) => lockObject(id, shouldLock));
+        }
       }
     };
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -107,7 +157,24 @@ export const Canvas: React.FC = () => {
     if (draggingConnection) {
       const rect = containerRef.current?.getBoundingClientRect();
       const pt = screenToCanvas(e.clientX, e.clientY, pan, zoom, rect);
-      updateDraggingConnection(pt.x, pt.y);
+
+      let bestTargetId: string | undefined;
+      let bestTargetAnchor: any | undefined;
+      let minDst = 40 / zoom;
+      let snapPt = pt;
+
+      boardObjects.forEach((obj) => {
+        if (obj.id === draggingConnection.sourceObjectId) return;
+        const { position, point, distance } = getNearestAnchor(pt, obj);
+        if (distance < minDst) {
+          minDst = distance;
+          bestTargetId = obj.id;
+          bestTargetAnchor = position;
+          snapPt = point;
+        }
+      });
+
+      updateDraggingConnection(snapPt.x, snapPt.y, bestTargetId, bestTargetAnchor);
     }
 
     if (marqueeStartRef.current) {
@@ -133,22 +200,56 @@ export const Canvas: React.FC = () => {
     }
 
     if (draggingConnection) {
-      cancelDraggingConnection();
+      if (draggingConnection.targetObjectId && draggingConnection.targetAnchor) {
+        finishDraggingConnection(draggingConnection.targetObjectId, draggingConnection.targetAnchor);
+      } else {
+        cancelDraggingConnection();
+      }
     }
   };
 
-  // HTML5 Drag & Drop from Left Toolbar onto Canvas
+  // HTML5 Drag & Drop from Left Toolbar and External Files
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+    if (e.dataTransfer.types.includes('Files')) {
+      if (!isDraggingFile) setIsDraggingFile(true);
+    }
     e.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(false);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    setIsDraggingFile(false);
+    
+    const rect = containerRef.current?.getBoundingClientRect();
+    const pt = screenToCanvas(e.clientX, e.clientY, pan, zoom, rect);
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      Array.from(e.dataTransfer.files).forEach((file, idx) => {
+        const dropX = pt.x + (idx * 20);
+        const dropY = pt.y + (idx * 20);
+        const fileUrl = URL.createObjectURL(file);
+        
+        if (file.type.startsWith('image/')) {
+          addObject('image', dropX, dropY, { url: fileUrl });
+        } else if (file.type.startsWith('video/')) {
+          addObject('video', dropX, dropY, { url: fileUrl });
+        } else if (file.type.startsWith('audio/')) {
+          addObject('audio', dropX, dropY, { url: fileUrl, title: file.name });
+        } else {
+          addObject('document', dropX, dropY, { title: file.name, url: fileUrl });
+        }
+      });
+      return;
+    }
+
     const cardType = e.dataTransfer.getData('application/moodie-card-type') as ObjectType;
     if (cardType) {
-      const rect = containerRef.current?.getBoundingClientRect();
-      const pt = screenToCanvas(e.clientX, e.clientY, pan, zoom, rect);
       addObject(cardType, pt.x - 100, pt.y - 60);
     }
   };
@@ -198,6 +299,7 @@ export const Canvas: React.FC = () => {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={`relative w-full h-full overflow-hidden bg-slate-50 select-none canvas-bg-layer ${
         spacePressed || isPanning ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
@@ -215,8 +317,22 @@ export const Canvas: React.FC = () => {
         style={{
           transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
           transformOrigin: '0 0',
+          willChange: 'transform',
         }}
       >
+        {/* Alignment Guides */}
+        {activeGuides?.map((guide, idx) => (
+          <div
+            key={`guide-${idx}`}
+            className="absolute bg-indigo-500/40 pointer-events-none z-0"
+            style={
+              guide.axis === 'x'
+                ? { left: guide.position, top: -10000, width: 1, height: 20000 }
+                : { top: guide.position, left: -10000, width: 20000, height: 1 }
+            }
+          />
+        ))}
+
         {/* Render All Canvas Object Cards */}
         {boardObjects.map((obj) => (
           <div key={obj.id} className="pointer-events-auto">
@@ -228,24 +344,41 @@ export const Canvas: React.FC = () => {
         <MarqueeSelect rect={marqueeRect} />
 
         {/* Real-time Collaboration Presences Cursors */}
-        {userPresences.map((u) => (
+        {userPresences.map((presence) => (
           <div
-            key={u.id}
+            key={presence.id}
             className="absolute pointer-events-none z-50 flex items-center gap-1.5 transition-all duration-300"
-            style={{ left: `${u.cursor?.x}px`, top: `${u.cursor?.y}px` }}
+            style={{ left: `${presence.cursor?.x}px`, top: `${presence.cursor?.y}px` }}
           >
-            <svg className="w-5 h-5 drop-shadow" viewBox="0 0 24 24" fill={u.color}>
+            <svg className="w-5 h-5 drop-shadow" viewBox="0 0 24 24" fill={presence.color}>
               <path d="M3 3l7 18 3-7 7-3L3 3z" />
             </svg>
             <span
-              className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white shadow-md backdrop-blur"
-              style={{ backgroundColor: u.color }}
+              className="px-2 py-0.5 rounded text-xs text-white whitespace-nowrap"
+              style={{ backgroundColor: presence.color }}
             >
-              {u.name}
+              {presence.name}
             </span>
           </div>
         ))}
       </div>
+
+      {/* File Drag Drop Overlay */}
+      {isDraggingFile && (
+        <div className="absolute inset-0 z-50 bg-indigo-500/10 backdrop-blur-sm flex items-center justify-center border-[6px] border-dashed border-indigo-400 rounded-xl m-4 pointer-events-none">
+          <div className="bg-white/90 px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3">
+            <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800">Drop files anywhere</h3>
+              <p className="text-sm font-medium text-slate-500">Add images, videos, audio or documents</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

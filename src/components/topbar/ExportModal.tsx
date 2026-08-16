@@ -8,12 +8,14 @@ export const ExportModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   const handleExportPNG = () => {
     const canvasEl = document.querySelector('.canvas-bg-layer') as HTMLElement;
-    if (canvasEl) {
-      exportCanvasToImage(canvasEl, `${activeBoard.name.toLowerCase().replace(/\s+/g, '-')}`);
-    } else {
-      alert('Exporting canvas image...');
-    }
     onClose();
+    setTimeout(() => {
+      if (canvasEl) {
+        exportCanvasToImage(canvasEl, `${activeBoard.name.toLowerCase().replace(/\s+/g, '-')}`);
+      } else {
+        alert('Exporting canvas image...');
+      }
+    }, 200);
   };
 
   const handleExportMarkdown = () => {

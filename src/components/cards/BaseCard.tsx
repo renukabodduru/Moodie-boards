@@ -6,10 +6,12 @@ import {
   Lock,
   Unlock,
   Copy,
+  ClipboardPaste,
   Trash2,
   Palette,
   ChevronUp,
   ChevronDown,
+  Link2,
 } from 'lucide-react';
 
 interface BaseCardProps {
@@ -29,6 +31,8 @@ export const BaseCard: React.FC<BaseCardProps> = ({
     deleteSelectedObjects,
     duplicateObject,
     duplicateSelectedObjects,
+    copySelectedObjects,
+    pasteObjects,
     lockObject,
     changeObjectLayering,
     startDraggingConnection,
@@ -37,6 +41,12 @@ export const BaseCard: React.FC<BaseCardProps> = ({
     pan,
     boardObjects,
     addComment,
+    setActiveGuides,
+    hoveredColumnId,
+    setHoveredColumnId,
+    groupSelectedObjects,
+    ungroupSelectedObjects,
+    reorderColumn,
   } = useBoard();
 
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -165,23 +175,32 @@ export const BaseCard: React.FC<BaseCardProps> = ({
 
     const multi = e.shiftKey;
 
-    toggleSelectObject(
-      object.id,
-      multi
-    );
+    const groupIdsToToggle = object.groupId
+      ? boardObjects.filter(o => o.groupId === object.groupId).map(o => o.id)
+      : [object.id];
 
-    /*
-     * Determine which objects should move.
-     */
+    let targets = [...selectedIds];
 
-    const targets =
-      multi || isSelected
-        ? selectedIds.includes(
-          object.id
-        )
-          ? selectedIds
-          : [object.id]
-        : [object.id];
+    if (multi) {
+      if (selectedIds.includes(object.id)) {
+        // Shift-clicking an already selected object deselects it.
+        // We shouldn't start a drag.
+        toggleSelectObject(object.id, true);
+        return;
+      } else {
+        // Shift-clicking an unselected object adds it (and its group) to selection.
+        targets = Array.from(new Set([...selectedIds, ...groupIdsToToggle]));
+        toggleSelectObject(object.id, true);
+      }
+    } else {
+      if (!selectedIds.includes(object.id)) {
+        // Clicking an unselected object without shift selects only its group.
+        targets = groupIdsToToggle;
+        toggleSelectObject(object.id, false);
+      } else {
+        // Clicking a selected object without shift keeps the selection, ready to drag all.
+      }
+    }
 
     /*
      * Save their original positions.
@@ -288,37 +307,92 @@ export const BaseCard: React.FC<BaseCardProps> = ({
           animFrameIdRef.current =
             requestAnimationFrame(
               () => {
-                const {
-                  dx,
-                  dy,
-                } =
-                  currentDeltaRef.current;
+                const { dx, dy } = currentDeltaRef.current;
+                const positions = dragStartRef.current.initialPositions;
+                const primaryStart = positions[object.id];
+                
+                let snappedDx = dx;
+                let snappedDy = dy;
+                let snappedXGuides: { axis: 'x' | 'y'; position: number }[] = [];
+                let snappedYGuides: { axis: 'x' | 'y'; position: number }[] = [];
+                let targetColumnId: string | null = null;
 
-                const positions =
-                  dragStartRef.current
-                    .initialPositions;
+                if (primaryStart && !e.altKey) {
+                  const rawX = primaryStart.x + dx;
+                  const rawY = primaryStart.y + dy;
+                  const rawCenterX = rawX + object.width / 2;
+                  const rawCenterY = rawY + object.height / 2;
+                  const rawRight = rawX + object.width;
+                  const rawBottom = rawY + object.height;
 
-                Object.entries(
-                  positions
-                ).forEach(
-                  ([
-                    id,
-                    startPosition,
-                  ]) => {
-                    updateObject(
-                      id,
-                      {
-                        x:
-                          startPosition.x +
-                          dx,
+                  const snapThreshold = 6 / zoomRef.current;
+                  let minDiffX = snapThreshold;
+                  let minDiffY = snapThreshold;
 
-                        y:
-                          startPosition.y +
-                          dy,
+                  boardObjects.forEach((other) => {
+                    if (selectedIds.includes(other.id)) return;
+                    if (other.type === 'column') {
+                      if (
+                        rawCenterX >= other.x &&
+                        rawCenterX <= other.x + other.width &&
+                        rawCenterY >= other.y &&
+                        rawCenterY <= other.y + other.height
+                      ) {
+                        targetColumnId = other.id;
                       }
-                    );
-                  }
-                );
+                      return; // skip snapping to columns
+                    }
+
+                    const otherCenterX = other.x + other.width / 2;
+                    const otherCenterY = other.y + other.height / 2;
+                    const otherRight = other.x + other.width;
+                    const otherBottom = other.y + other.height;
+
+                    // X Snapping
+                    const checkXSnap = (dragVal: number, targetVal: number) => {
+                      const diff = Math.abs(dragVal - targetVal);
+                      if (diff < minDiffX) {
+                        minDiffX = diff;
+                        snappedDx = dx - (dragVal - targetVal);
+                        snappedXGuides = [{ axis: 'x', position: targetVal }];
+                      } else if (diff === minDiffX && diff < snapThreshold) {
+                        snappedXGuides.push({ axis: 'x', position: targetVal });
+                      }
+                    };
+                    checkXSnap(rawX, other.x);
+                    checkXSnap(rawX, otherRight);
+                    checkXSnap(rawRight, other.x);
+                    checkXSnap(rawRight, otherRight);
+                    checkXSnap(rawCenterX, otherCenterX);
+
+                    // Y Snapping
+                    const checkYSnap = (dragVal: number, targetVal: number) => {
+                      const diff = Math.abs(dragVal - targetVal);
+                      if (diff < minDiffY) {
+                        minDiffY = diff;
+                        snappedDy = dy - (dragVal - targetVal);
+                        snappedYGuides = [{ axis: 'y', position: targetVal }];
+                      } else if (diff === minDiffY && diff < snapThreshold) {
+                        snappedYGuides.push({ axis: 'y', position: targetVal });
+                      }
+                    };
+                    checkYSnap(rawY, other.y);
+                    checkYSnap(rawY, otherBottom);
+                    checkYSnap(rawBottom, other.y);
+                    checkYSnap(rawBottom, otherBottom);
+                    checkYSnap(rawCenterY, otherCenterY);
+                  });
+                }
+
+                setActiveGuides([...snappedXGuides, ...snappedYGuides]);
+                setHoveredColumnId(targetColumnId);
+
+                Object.entries(positions).forEach(([id, startPosition]) => {
+                  updateObject(id, {
+                    x: startPosition.x + snappedDx,
+                    y: startPosition.y + snappedDy,
+                  });
+                });
 
                 animFrameIdRef.current =
                   null;
@@ -493,10 +567,15 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                   parentColumn.id,
               }
             );
+            setTimeout(() => reorderColumn(parentColumn.id), 50);
+            if (object.parentId) {
+              setTimeout(() => reorderColumn(object.parentId as string), 50);
+            }
           } else if (
             !parentColumn &&
             object.parentId
           ) {
+            const oldParentId = object.parentId;
             updateObject(
               object.id,
               {
@@ -504,6 +583,13 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                   undefined,
               }
             );
+            setTimeout(() => reorderColumn(oldParentId), 50);
+          } else if (
+            parentColumn &&
+            object.parentId === parentColumn.id
+          ) {
+            // Dragged within same column, reorder!
+            setTimeout(() => reorderColumn(parentColumn.id), 50);
           }
         }
 
@@ -523,6 +609,15 @@ export const BaseCard: React.FC<BaseCardProps> = ({
         };
 
         setIsDragging(false);
+        setActiveGuides([]);
+        
+        // If we dropped into a column, update parentId for all dragged objects
+        if (hoveredColumnId) {
+          Object.keys(dragStartRef.current.initialPositions).forEach((id) => {
+            updateObject(id, { parentId: hoveredColumnId });
+          });
+        }
+        setHoveredColumnId(null);
       }
 
       /*
@@ -737,28 +832,27 @@ export const BaseCard: React.FC<BaseCardProps> = ({
         className={`
           w-full
           h-full
-          rounded-2xl
+          rounded-3xl
           relative
-          transition-shadow
-          duration-200
+          transition-all
+          duration-300
+          ease-out
           ${isDragging
             ? `
-                shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]
-                ring-2
-                ring-neutral-800
+                shadow-apple-elevated
+                ring-1
+                ring-indigo-200
+                scale-105
               `
-            : isSelected
-              ? `
-                ring-2
-                ring-neutral-800
-                shadow-2xl
-              `
-              : `
-                hover:ring-2
-                hover:ring-neutral-400
-                shadow-md
-                hover:shadow-xl
-              `
+            : ''
+          }
+          ${isSelected && !isMultiSelected ? 'ring-2 ring-indigo-500 shadow-[0_8px_30px_rgb(99,102,241,0.3)]' : 'shadow-apple-soft'}
+          ${isMultiSelected ? 'ring-2 ring-indigo-400 shadow-[0_4px_20px_rgb(99,102,241,0.2)]' : ''}
+          ${hoveredColumnId === object.id && object.type === 'column' ? 'ring-4 ring-indigo-300 bg-indigo-50/50' : ''}
+          ${
+            !isSelected && !isDragging
+              ? 'hover:-translate-y-1 hover:shadow-apple-elevated hover:ring-1 hover:ring-indigo-100'
+              : ''
           }
         `}
         style={{
@@ -768,7 +862,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
 
           color:
             object.style?.color ||
-            '#1e293b',
+            '#1d1d1f',
 
           borderColor:
             object.style?.borderColor ||
@@ -798,7 +892,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
             h-full
             p-4
             overflow-hidden
-            rounded-2xl
+            rounded-3xl
             flex
             flex-col
           "
@@ -955,6 +1049,34 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                   </div>
                 )}
               </div>
+
+              {/* GROUPING */}
+              {isMultiSelected && (
+                <button
+                  onClick={() => {
+                    const allGrouped = selectedIds.every(id => {
+                      const obj = boardObjects.find(o => o.id === id);
+                      return obj?.groupId;
+                    });
+                    if (allGrouped) {
+                      ungroupSelectedObjects();
+                    } else {
+                      groupSelectedObjects();
+                    }
+                  }}
+                  className="
+                    p-1
+                    hover:bg-slate-800
+                    rounded-lg
+                    text-slate-300
+                    hover:text-white
+                    transition-colors
+                  "
+                  title="Group / Ungroup"
+                >
+                  <Link2 className="w-3.5 h-3.5" />
+                </button>
+              )}
 
               {/* DUPLICATE */}
 
@@ -1206,27 +1328,24 @@ export const BaseCard: React.FC<BaseCardProps> = ({
         .filter(
           ({ position }) =>
             position === 'left' ||
-            position === 'right'
+            position === 'right' ||
+            position === 'top' ||
+            position === 'bottom'
         )
         .map(
           ({
             position,
           }) => {
-            const posStyle: React.CSSProperties =
-              position ===
-                'left'
-                ? {
-                  left: '-5px',
-                  top: '50%',
-                  transform:
-                    'translateY(-50%)',
-                }
-                : {
-                  right: '-5px',
-                  top: '50%',
-                  transform:
-                    'translateY(-50%)',
-                };
+            let posStyle: React.CSSProperties = {};
+            if (position === 'left') {
+              posStyle = { left: '-5px', top: '50%', transform: 'translateY(-50%)' };
+            } else if (position === 'right') {
+              posStyle = { right: '-5px', top: '50%', transform: 'translateY(-50%)' };
+            } else if (position === 'top') {
+              posStyle = { top: '-5px', left: '50%', transform: 'translateX(-50%)' };
+            } else if (position === 'bottom') {
+              posStyle = { bottom: '-5px', left: '50%', transform: 'translateX(-50%)' };
+            }
 
             return (
               <div
@@ -1291,18 +1410,18 @@ export const BaseCard: React.FC<BaseCardProps> = ({
           className="
             fixed
             z-50
-            bg-slate-900
-            text-white
-            rounded-xl
-            shadow-2xl
-            border
-            border-slate-700
+            glass-panel
+            text-slate-700
+            rounded-2xl
+            shadow-apple-elevated
+            border-white/40
             py-1.5
             min-w-[170px]
             text-xs
             animate-in
             fade-in
             duration-100
+            font-medium
           "
           style={{
             left:
@@ -1331,29 +1450,108 @@ export const BaseCard: React.FC<BaseCardProps> = ({
             className="
               w-full
               px-3
-              py-1.5
+              py-2
               text-left
-              hover:bg-slate-800
+              hover:bg-slate-100/60
               flex
               items-center
               gap-2
+              transition-colors
             "
           >
-            <Copy className="w-3.5 h-3.5" />
+            <Copy className="w-3.5 h-3.5 text-slate-500" />
 
             {isMultiSelected
               ? `Duplicate (${selectedIds.length})`
               : 'Duplicate'}
           </button>
 
+          {/* GROUP / UNGROUP */}
+          {isMultiSelected && (
+            <button
+              onClick={() => {
+                const allGrouped = selectedIds.every(id => {
+                  const obj = boardObjects.find(o => o.id === id);
+                  return obj?.groupId;
+                });
+                if (allGrouped) {
+                  ungroupSelectedObjects();
+                } else {
+                  groupSelectedObjects();
+                }
+                setContextMenuPos(null);
+              }}
+              className="
+                w-full
+                px-3
+                py-2
+                text-left
+                hover:bg-slate-100/60
+                flex
+                items-center
+                gap-2
+                transition-colors
+              "
+            >
+              <Link2 className="w-3.5 h-3.5 text-slate-500" />
+              Group / Ungroup
+            </button>
+          )}
+
+          {/* COPY */}
+          <button
+            onClick={() => {
+              copySelectedObjects();
+              setContextMenuPos(null);
+            }}
+            className="
+              w-full
+              px-3
+              py-2
+              text-left
+              hover:bg-slate-100/60
+              flex
+              items-center
+              gap-2
+              transition-colors
+            "
+          >
+            <Copy className="w-3.5 h-3.5 text-slate-500" />
+            Copy
+          </button>
+
+          {/* PASTE */}
+          <button
+            onClick={() => {
+              pasteObjects();
+              setContextMenuPos(null);
+            }}
+            className="
+              w-full
+              px-3
+              py-2
+              text-left
+              hover:bg-slate-100/60
+              flex
+              items-center
+              gap-2
+              transition-colors
+            "
+          >
+            <ClipboardPaste className="w-3.5 h-3.5 text-slate-500" />
+            Paste
+          </button>
+
           {/* LOCK */}
 
           <button
             onClick={() => {
-              lockObject(
-                object.id,
-                !object.locked
-              );
+              const newLockedState = !object.locked;
+              if (isMultiSelected) {
+                selectedIds.forEach(id => lockObject(id, newLockedState));
+              } else {
+                lockObject(object.id, newLockedState);
+              }
 
               setContextMenuPos(
                 null
@@ -1362,18 +1560,19 @@ export const BaseCard: React.FC<BaseCardProps> = ({
             className="
               w-full
               px-3
-              py-1.5
+              py-2
               text-left
-              hover:bg-slate-800
+              hover:bg-slate-100/60
               flex
               items-center
               gap-2
+              transition-colors
             "
           >
             {object.locked ? (
-              <Unlock className="w-3.5 h-3.5" />
+              <Unlock className="w-3.5 h-3.5 text-slate-500" />
             ) : (
-              <Lock className="w-3.5 h-3.5" />
+              <Lock className="w-3.5 h-3.5 text-slate-500" />
             )}
 
             {object.locked
@@ -1397,15 +1596,16 @@ export const BaseCard: React.FC<BaseCardProps> = ({
             className="
               w-full
               px-3
-              py-1.5
+              py-2
               text-left
-              hover:bg-slate-800
+              hover:bg-slate-100/60
               flex
               items-center
               gap-2
+              transition-colors
             "
           >
-            <Palette className="w-3.5 h-3.5" />
+            <Palette className="w-3.5 h-3.5 text-slate-500" />
 
             Add Comment
           </button>
@@ -1414,7 +1614,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
             className="
               my-1
               border-t
-              border-slate-800
+              border-slate-200/50
             "
           />
 
@@ -1435,16 +1635,17 @@ export const BaseCard: React.FC<BaseCardProps> = ({
             className="
               w-full
               px-3
-              py-1.5
+              py-2
               text-left
-              hover:bg-red-500/20
-              text-red-400
+              hover:bg-red-50
+              text-red-600
               flex
               items-center
               gap-2
+              transition-colors
             "
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Trash2 className="w-3.5 h-3.5 text-red-500" />
 
             {isMultiSelected
               ? `Delete (${selectedIds.length})`

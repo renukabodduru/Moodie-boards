@@ -18,6 +18,7 @@ import {
   DEFAULT_HOME_BOARD,
   INITIAL_TEMPLATES,
 } from '../utils/storage';
+import { useAuth } from './AuthContext';
 
 interface BoardHistoryState {
   objects: CanvasObject[];
@@ -34,7 +35,10 @@ export interface BoardContextType {
   breadcrumbTrail: Board[];
   setCurrentBoardId: (id: string) => void;
   createBoard: (name: string, parentId?: string) => string;
+  updateBoard: (id: string, name: string) => void;
+  duplicateBoard: (id: string) => string;
   deleteBoard: (id: string) => void;
+  toggleFavoriteBoard: (id: string) => void;
 
   // Objects CRUD & Multi-selection operations
   objects: CanvasObject[];
@@ -46,6 +50,10 @@ export interface BoardContextType {
   deleteSelectedObjects: () => void;
   duplicateObject: (id: string) => void;
   duplicateSelectedObjects: () => void;
+  copySelectedObjects: () => Promise<void>;
+  pasteObjects: () => Promise<void>;
+  groupSelectedObjects: () => void;
+  ungroupSelectedObjects: () => void;
   lockObject: (id: string, locked: boolean) => void;
   changeObjectLayering: (id: string, action: 'front' | 'back' | 'forward' | 'backward') => void;
 
@@ -104,20 +112,48 @@ export interface BoardContextType {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   userPresences: UserPresence[];
+  activeGuides: { axis: 'x' | 'y'; position: number }[];
+  setActiveGuides: React.Dispatch<React.SetStateAction<{ axis: 'x' | 'y'; position: number }[]>>;
+  hoveredColumnId: string | null;
+  setHoveredColumnId: (id: string | null) => void;
+  reorderColumn: (columnId: string) => void;
 }
 
 const BoardContext = createContext<BoardContextType | undefined>(undefined);
 
 export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const initialData = useRef(loadSavedWorkspace());
-
+  const { user } = useAuth();
+  
+  const [isLoaded, setIsLoaded] = useState(false);
   const [viewMode, setViewMode] = useState<'dashboard' | 'canvas'>('dashboard');
-  const [boards, setBoards] = useState<Board[]>(initialData.current.boards);
+  const [boards, setBoards] = useState<Board[]>([DEFAULT_HOME_BOARD]);
   const [currentBoardId, setCurrentBoardId] = useState<string>('home');
-  const [objects, setObjects] = useState<CanvasObject[]>(initialData.current.objects);
-  const [connections, setConnections] = useState<Connection[]>(initialData.current.connections);
-  const [comments, setComments] = useState<CommentItem[]>(initialData.current.comments);
-  const [trash, setTrash] = useState<CanvasObject[]>(initialData.current.trash);
+  const [objects, setObjects] = useState<CanvasObject[]>([]);
+  const [connections, setConnections] = useState<Connection[]>([]);
+  const [comments, setComments] = useState<CommentItem[]>([]);
+  const [trash, setTrash] = useState<CanvasObject[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    
+    let isMounted = true;
+    const fetchWorkspace = async () => {
+      const data = await loadSavedWorkspace(user.id);
+      if (isMounted) {
+        setBoards(data.boards);
+        setObjects(data.objects);
+        setConnections(data.connections);
+        setComments(data.comments);
+        setTrash(data.trash);
+        setIsLoaded(true);
+      }
+    };
+    fetchWorkspace();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   // Selection & Tools
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -143,6 +179,10 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Simulated Presences (single-user mode)
   const [userPresences] = useState<UserPresence[]>([]);
+
+  // Alignment Guides
+  const [activeGuides, setActiveGuides] = useState<{ axis: 'x' | 'y'; position: number }[]>([]);
+  const [hoveredColumnId, setHoveredColumnId] = useState<string | null>(null);
 
   // Ensure Home board exists
   const activeBoard = boards.find((b) => b.id === currentBoardId) || boards[0] || DEFAULT_HOME_BOARD;
@@ -171,13 +211,15 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Auto Save Engine
   useEffect(() => {
+    if (!isLoaded || !user) return;
+    
     setSaveStatus('saving');
     const timer = setTimeout(() => {
-      saveWorkspace({ boards, objects, connections, comments, trash });
+      saveWorkspace(user.id, { boards, objects, connections, comments, trash });
       setSaveStatus('saved');
-    }, 600);
+    }, 1500); // Increased debounce for DB saving
     return () => clearTimeout(timer);
-  }, [boards, objects, connections, comments, trash]);
+  }, [boards, objects, connections, comments, trash, isLoaded, user]);
 
   // Board CRUD
   const createBoard = useCallback((name: string, parentId?: string): string => {
@@ -203,6 +245,32 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setCurrentBoardId('home');
     }
   }, [currentBoardId]);
+
+  const updateBoard = useCallback((id: string, name: string) => {
+    setBoards((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, name, updatedAt: Date.now() } : b))
+    );
+  }, []);
+
+  const duplicateBoard = useCallback((id: string) => {
+    let newId = '';
+    setBoards((prev) => {
+      const src = prev.find((b) => b.id === id);
+      if (!src) return prev;
+      newId = `board-${Date.now()}`;
+      return [
+        ...prev,
+        { ...src, id: newId, name: `${src.name} (Copy)`, createdAt: Date.now(), updatedAt: Date.now() },
+      ];
+    });
+    return newId;
+  }, []);
+
+  const toggleFavoriteBoard = useCallback((id: string) => {
+    setBoards((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, isFavorite: !b.isFavorite, updatedAt: Date.now() } : b))
+    );
+  }, []);
 
   // Objects CRUD
   const boardObjects = objects.filter((o) => o.boardId === currentBoardId);
@@ -400,15 +468,25 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const maxZIndex = objects.reduce((max, o) => Math.max(max, o.zIndex || 1), 1);
     const newCopies: CanvasObject[] = [];
     const newSelectedIds: string[] = [];
+    const groupMap = new Map<string, string>();
 
     selectedIds.forEach((id, idx) => {
       const src = objects.find((o) => o.id === id);
       if (!src) return;
 
+      let newGroupId = src.groupId;
+      if (newGroupId) {
+        if (!groupMap.has(newGroupId)) {
+          groupMap.set(newGroupId, `group-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`);
+        }
+        newGroupId = groupMap.get(newGroupId);
+      }
+
       const newId = `obj-${Date.now()}-${idx}-${Math.random().toString(36).substr(2, 4)}`;
       const copy: CanvasObject = {
         ...src,
         id: newId,
+        groupId: newGroupId,
         x: src.x + 40,
         y: src.y + 40,
         zIndex: maxZIndex + idx + 1,
@@ -424,6 +502,90 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setSelectedIds(newSelectedIds);
     pushHistory(updated, connections);
   }, [objects, connections, selectedIds, pushHistory]);
+
+  const copySelectedObjects = useCallback(async () => {
+    if (!selectedIds.length) return;
+    const toCopy = objects.filter((o) => selectedIds.includes(o.id));
+    try {
+      await navigator.clipboard.writeText(JSON.stringify({ type: 'moodie-board-objects', objects: toCopy }));
+    } catch (err) {
+      console.error('Failed to copy', err);
+    }
+  }, [objects, selectedIds]);
+
+  const pasteObjects = useCallback(async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      const parsed = JSON.parse(text);
+      if (parsed && parsed.type === 'moodie-board-objects' && Array.isArray(parsed.objects)) {
+        const maxZIndex = objects.reduce((max, o) => Math.max(max, o.zIndex || 1), 1);
+        const newCopies: CanvasObject[] = [];
+        const newSelectedIds: string[] = [];
+        const groupMap = new Map<string, string>();
+
+        parsed.objects.forEach((src: CanvasObject, idx: number) => {
+          const newId = `obj-${Date.now()}-${idx}-${Math.random().toString(36).substr(2, 4)}`;
+          
+          let newGroupId = src.groupId;
+          if (newGroupId) {
+            if (!groupMap.has(newGroupId)) {
+              groupMap.set(newGroupId, `group-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`);
+            }
+            newGroupId = groupMap.get(newGroupId);
+          }
+
+          const copy: CanvasObject = {
+            ...src,
+            id: newId,
+            boardId: currentBoardId,
+            groupId: newGroupId,
+            x: src.x + 40,
+            y: src.y + 40,
+            zIndex: maxZIndex + idx + 1,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          };
+          newCopies.push(copy);
+          newSelectedIds.push(newId);
+        });
+
+        const updated = [...objects, ...newCopies];
+        setObjects(updated);
+        setSelectedIds(newSelectedIds);
+        pushHistory(updated, connections);
+      }
+    } catch (err) {
+      console.error('Failed to paste', err);
+    }
+  }, [objects, connections, currentBoardId, pushHistory]);
+
+  const groupSelectedObjects = useCallback(() => {
+    if (selectedIds.length < 2) return;
+    const groupId = `group-${Date.now()}`;
+    const updated = objects.map((obj) =>
+      selectedIds.includes(obj.id) ? { ...obj, groupId, updatedAt: Date.now() } : obj
+    );
+    setObjects(updated);
+    pushHistory(updated, connections);
+  }, [objects, selectedIds, connections, pushHistory]);
+
+  const ungroupSelectedObjects = useCallback(() => {
+    if (!selectedIds.length) return;
+    const groupIdsToUngroup = new Set(
+      objects.filter((o) => selectedIds.includes(o.id) && o.groupId).map((o) => o.groupId)
+    );
+    if (groupIdsToUngroup.size === 0) return;
+
+    const updated = objects.map((obj) => {
+      if (obj.groupId && groupIdsToUngroup.has(obj.groupId)) {
+        const { groupId, ...rest } = obj;
+        return { ...rest, updatedAt: Date.now() } as CanvasObject;
+      }
+      return obj;
+    });
+    setObjects(updated);
+    pushHistory(updated, connections);
+  }, [objects, selectedIds, connections, pushHistory]);
 
   const lockObject = useCallback((id: string, locked: boolean) => {
     updateObject(id, { locked });
@@ -482,14 +644,22 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Selection Logic
   const toggleSelectObject = useCallback((id: string, multiSelect: boolean = false) => {
     setSelectedLineId(null);
+    const obj = objects.find(o => o.id === id);
+    const groupIdsToToggle = obj?.groupId 
+      ? objects.filter(o => o.groupId === obj.groupId).map(o => o.id)
+      : [id];
+
     if (multiSelect) {
-      setSelectedIds((prev) =>
-        prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-      );
+      setSelectedIds((prev) => {
+        if (prev.includes(id)) {
+          return prev.filter((i) => !groupIdsToToggle.includes(i));
+        }
+        return Array.from(new Set([...prev, ...groupIdsToToggle]));
+      });
     } else {
-      setSelectedIds([id]);
+      setSelectedIds(groupIdsToToggle);
     }
-  }, []);
+  }, [objects]);
 
   const selectObjectsInRect = useCallback((rect: { x: number; y: number; width: number; height: number }) => {
     const matches = boardObjects
@@ -547,6 +717,45 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   }, [boardObjects, resetZoom]);
 
+  const reorderColumn = useCallback((columnId: string) => {
+    setObjects((prev) => {
+      const col = prev.find((o) => o.id === columnId);
+      if (!col) return prev;
+
+      const children = prev
+        .filter((o) => o.parentId === columnId)
+        .sort((a, b) => a.y - b.y);
+
+      if (children.length === 0) return prev;
+
+      const updated = [...prev];
+      let currentY = col.y + 70; // Header padding
+
+      children.forEach((child) => {
+        const childIndex = updated.findIndex((o) => o.id === child.id);
+        if (childIndex > -1) {
+          updated[childIndex] = {
+            ...updated[childIndex],
+            x: col.x + 20,
+            y: currentY,
+          };
+          currentY += updated[childIndex].height + 20;
+        }
+      });
+
+      // Adjust column height to fit children
+      const colIndex = updated.findIndex((o) => o.id === columnId);
+      if (colIndex > -1) {
+        updated[colIndex] = {
+          ...updated[colIndex],
+          height: Math.max(currentY - col.y + 20, 200),
+        };
+      }
+
+      return updated;
+    });
+  }, []);
+
   // Connection Dragging Handlers
   const startDraggingConnection = useCallback(
     (sourceObjectId: string, sourceAnchor: AnchorPosition, x: number, y: number) => {
@@ -565,7 +774,7 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const finishDraggingConnection = useCallback(
-    (targetObjectId: string, targetAnchor: AnchorPosition, lineStyle: LineStyle = 'curved') => {
+    (targetObjectId: string, targetAnchor: AnchorPosition, lineStyle: LineStyle = 'straight') => {
       if (!draggingConnection) return;
       if (draggingConnection.sourceObjectId === targetObjectId) {
         setDraggingConnection(null);
@@ -578,8 +787,8 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         lineStyle,
         strokePattern: 'solid',
         arrowEnd: true,
-        color: '#6366f1',
-        strokeWidth: 3,
+        color: '#000000',
+        strokeWidth: 1.5,
       });
 
       setDraggingConnection(null);
@@ -653,6 +862,13 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const timestamp = Date.now();
     const idMap: Record<string, string> = {};
 
+    const currentBoardObjects = objects.filter(o => o.boardId === currentBoardId);
+    let offsetY = 0;
+    if (currentBoardObjects.length > 0) {
+      const maxY = Math.max(...currentBoardObjects.map(o => o.y + o.height));
+      offsetY = maxY + 100;
+    }
+
     const newObjects: CanvasObject[] = tmpl.objects.map((o, idx) => {
       const newId = `tmpl-obj-${timestamp}-${idx}`;
       if (o.id) idMap[o.id] = newId;
@@ -661,7 +877,7 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         boardId: currentBoardId,
         type: o.type || 'note',
         x: o.x || 100,
-        y: o.y || 100,
+        y: (o.y || 100) + offsetY,
         width: o.width || 240,
         height: o.height || 140,
         zIndex: (o.zIndex || 1) + 100,
@@ -686,13 +902,21 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       lineStyle: c.lineStyle || 'curved',
       strokePattern: c.strokePattern || 'solid',
       arrowEnd: c.arrowEnd !== undefined ? c.arrowEnd : true,
-      color: c.color || '#6366f1',
-      strokeWidth: c.strokeWidth || 3,
+      color: c.color || '#000000',
+      strokeWidth: c.strokeWidth || 1.5,
     }));
 
     setObjects((prev) => [...prev, ...newObjects]);
     setConnections((prev) => [...prev, ...newConnections]);
   }, [currentBoardId]);
+
+  if (!isLoaded) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
 
   return (
     <BoardContext.Provider
@@ -705,7 +929,10 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         breadcrumbTrail,
         setCurrentBoardId,
         createBoard,
+        updateBoard,
+        duplicateBoard,
         deleteBoard,
+        toggleFavoriteBoard,
         objects,
         boardObjects,
         setObjects,
@@ -715,6 +942,10 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         deleteSelectedObjects,
         duplicateObject,
         duplicateSelectedObjects,
+        copySelectedObjects,
+        pasteObjects,
+        groupSelectedObjects,
+        ungroupSelectedObjects,
         lockObject,
         changeObjectLayering,
         connections,
@@ -761,6 +992,11 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         searchQuery,
         setSearchQuery,
         userPresences,
+        activeGuides,
+        setActiveGuides,
+        hoveredColumnId,
+        setHoveredColumnId,
+        reorderColumn,
       }}
     >
       {children}

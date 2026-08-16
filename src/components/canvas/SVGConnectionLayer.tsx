@@ -563,7 +563,7 @@ export const SVGConnectionLayer: React.FC = () => {
           };
 
           /*
-           * Use a curved path while
+           * Use a straight path while
            * creating a connection.
            */
 
@@ -571,7 +571,7 @@ export const SVGConnectionLayer: React.FC = () => {
             generateSVGPath(
               sourcePt,
               targetPt,
-              'curved'
+              'straight'
             );
 
           return (
@@ -598,15 +598,21 @@ export const SVGConnectionLayer: React.FC = () => {
               />
 
               {/* Current mouse position */}
-
               <circle
                 cx={targetPt.x}
                 cy={targetPt.y}
-                r="6"
-                fill={
-                  DEFAULT_ARROW_COLOR
-                }
+                r={draggingConnection.targetObjectId ? "12" : "6"}
+                fill={draggingConnection.targetObjectId ? "rgba(99, 102, 241, 0.3)" : DEFAULT_ARROW_COLOR}
+                className="transition-all duration-150"
               />
+              {draggingConnection.targetObjectId && (
+                <circle
+                  cx={targetPt.x}
+                  cy={targetPt.y}
+                  r="6"
+                  fill="#6366f1"
+                />
+              )}
             </g>
           );
         })()}

@@ -19,7 +19,7 @@ export const HeadingCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
         value={text}
         onChange={handleChange}
         placeholder="HEADING TITLE"
-        className="w-full bg-transparent focus:outline-none text-2xl font-extrabold tracking-tight focus:ring-1 focus:ring-indigo-400 rounded px-1"
+        className="w-full bg-transparent focus:outline-none text-3xl font-black tracking-tighter focus:ring-1 focus:ring-indigo-400 rounded px-1"
         style={{ color: object.style?.color || '#0f172a', textAlign: object.style?.textAlign || 'left' }}
       />
     </div>

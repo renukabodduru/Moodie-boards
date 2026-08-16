@@ -21,7 +21,7 @@ export function exportToJSON(
   a.href = url;
   a.download = `${board.name.toLowerCase().replace(/\s+/g, '-')}-workspace.json`;
   a.click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 100);
 }
 
 export function exportToMarkdown(board: Board, objects: CanvasObject[]): string {
@@ -70,7 +70,7 @@ export function downloadMarkdownFile(board: Board, objects: CanvasObject[]) {
   a.href = url;
   a.download = `${board.name.toLowerCase().replace(/\s+/g, '-')}.md`;
   a.click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 100);
 }
 
 export async function exportCanvasToImage(
@@ -78,21 +78,21 @@ export async function exportCanvasToImage(
   fileName: string = 'moodie-board-export'
 ) {
   try {
-    const html2canvas = (await import('html2canvas')).default;
-    const canvas = await html2canvas(canvasElement, {
-      scale: 2,
+    const htmlToImage = await import('html-to-image');
+    const image = await htmlToImage.toPng(canvasElement, {
+      pixelRatio: 2,
       backgroundColor: '#f8fafc',
-      useCORS: true,
-      logging: false,
+      filter: (element) => {
+        return element.tagName !== 'ASIDE' && !element.classList?.contains('canvas-ignore-export');
+      }
     });
 
-    const image = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = image;
     link.download = `${fileName}.png`;
     link.click();
   } catch (err) {
-    console.error('PNG export failed, falling back to SVG rasterizer:', err);
-    alert('Exporting workspace image... If popup is blocked, please check permissions.');
+    console.error('PNG export failed:', err);
+    alert('Exporting workspace image failed. See console for details.');
   }
 }

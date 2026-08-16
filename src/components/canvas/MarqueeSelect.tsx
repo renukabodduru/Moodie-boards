@@ -9,7 +9,7 @@ export const MarqueeSelect: React.FC<MarqueeProps> = ({ rect }) => {
 
   return (
     <div
-      className="absolute border border-indigo-500 bg-indigo-500/10 pointer-events-none z-50 rounded"
+      className="absolute border border-indigo-500 bg-indigo-500/10 pointer-events-none z-[9999] rounded"
       style={{
         left: `${rect.x}px`,
         top: `${rect.y}px`,

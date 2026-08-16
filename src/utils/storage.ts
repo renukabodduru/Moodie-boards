@@ -1,4 +1,5 @@
 import { Board, CanvasObject, Connection, CommentItem, Template } from '../types/board';
+import { supabase } from '../lib/supabase';
 
 const STORAGE_KEYS = {
   BOARDS: 'moodie_boards',
@@ -413,40 +414,48 @@ export const SAMPLE_INITIAL_CONNECTIONS: Connection[] = [
   },
 ];
 
-export function loadSavedWorkspace(): {
+export async function loadSavedWorkspace(userId: string): Promise<{
   boards: Board[];
   objects: CanvasObject[];
   connections: Connection[];
   comments: CommentItem[];
   trash: CanvasObject[];
-} {
+}> {
   try {
-    const rawBoards = localStorage.getItem(STORAGE_KEYS.BOARDS);
-    const rawObjects = localStorage.getItem(STORAGE_KEYS.OBJECTS);
-    const rawConnections = localStorage.getItem(STORAGE_KEYS.CONNECTIONS);
-    const rawComments = localStorage.getItem(STORAGE_KEYS.COMMENTS);
-    const rawTrash = localStorage.getItem(STORAGE_KEYS.TRASH);
+    const { data: profileData, error } = await supabase
+      .from('profiles')
+      .select('workspace_data')
+      .eq('id', userId)
+      .single();
 
-    const boards: Board[] = rawBoards ? JSON.parse(rawBoards) : [DEFAULT_HOME_BOARD];
-    const objects: CanvasObject[] = rawObjects ? JSON.parse(rawObjects) : SAMPLE_INITIAL_OBJECTS;
-    const connections: Connection[] = rawConnections ? JSON.parse(rawConnections) : SAMPLE_INITIAL_CONNECTIONS;
-    const comments: CommentItem[] = rawComments ? JSON.parse(rawComments) : [];
-    const trash: CanvasObject[] = rawTrash ? JSON.parse(rawTrash) : [];
+    if (error && error.code !== 'PGRST116') {
+      console.error('Failed to load workspace from Supabase:', error);
+    }
 
-    return { boards, objects, connections, comments, trash };
+    if (profileData && profileData.workspace_data) {
+      const data = profileData.workspace_data;
+      return {
+        boards: data.boards || [DEFAULT_HOME_BOARD],
+        objects: data.objects || SAMPLE_INITIAL_OBJECTS,
+        connections: data.connections || SAMPLE_INITIAL_CONNECTIONS,
+        comments: data.comments || [],
+        trash: data.trash || [],
+      };
+    }
   } catch (err) {
-    console.error('Failed to load workspace from LocalStorage:', err);
-    return {
-      boards: [DEFAULT_HOME_BOARD],
-      objects: SAMPLE_INITIAL_OBJECTS,
-      connections: SAMPLE_INITIAL_CONNECTIONS,
-      comments: [],
-      trash: [],
-    };
+    console.error('Exception loading workspace:', err);
   }
+
+  return {
+    boards: [DEFAULT_HOME_BOARD],
+    objects: SAMPLE_INITIAL_OBJECTS,
+    connections: SAMPLE_INITIAL_CONNECTIONS,
+    comments: [],
+    trash: [],
+  };
 }
 
-export function saveWorkspace(data: {
+export async function saveWorkspace(userId: string, data: {
   boards: Board[];
   objects: CanvasObject[];
   connections: Connection[];
@@ -454,12 +463,20 @@ export function saveWorkspace(data: {
   trash: CanvasObject[];
 }) {
   try {
-    localStorage.setItem(STORAGE_KEYS.BOARDS, JSON.stringify(data.boards));
-    localStorage.setItem(STORAGE_KEYS.OBJECTS, JSON.stringify(data.objects));
-    localStorage.setItem(STORAGE_KEYS.CONNECTIONS, JSON.stringify(data.connections));
-    localStorage.setItem(STORAGE_KEYS.COMMENTS, JSON.stringify(data.comments));
-    localStorage.setItem(STORAGE_KEYS.TRASH, JSON.stringify(data.trash));
+    const { error } = await supabase
+      .from('profiles')
+      .upsert({
+        id: userId,
+        workspace_data: data,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'id'
+      });
+
+    if (error) {
+      console.error('Failed to auto-save workspace to Supabase:', error);
+    }
   } catch (err) {
-    console.error('Failed to auto-save workspace to LocalStorage:', err);
+    console.error('Exception saving workspace to Supabase:', err);
   }
 }

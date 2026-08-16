@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useBoard } from '../../context/BoardContext';
 import { CanvasObject } from '../../types/board';
 import { Bold, Italic, List, CheckSquare } from 'lucide-react';
@@ -7,10 +7,26 @@ export const NoteCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
   const { updateObject } = useBoard();
   const [text, setText] = useState<string>(object.content.text || '');
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     setText(val);
-    updateObject(object.id, { content: { ...object.content, text: val } });
+    
+    let newHeight = object.height;
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      const scrollHeight = textareaRef.current.scrollHeight;
+      if (scrollHeight > object.height - 30) {
+        newHeight = scrollHeight + 30;
+      }
+      textareaRef.current.style.height = '100%';
+    }
+    
+    updateObject(object.id, { 
+      content: { ...object.content, text: val },
+      ...(newHeight !== object.height ? { height: newHeight } : {})
+    });
   };
 
   return (
@@ -53,10 +69,11 @@ export const NoteCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
       </div>
 
       <textarea
+        ref={textareaRef}
         value={text}
         onChange={handleChange}
         placeholder="Start typing note..."
-        className="w-full h-full bg-transparent resize-none focus:outline-none text-sm text-slate-800 leading-relaxed font-sans placeholder-slate-400"
+        className="w-full h-full bg-transparent resize-none focus:outline-none text-[15px] text-slate-800 leading-[1.6] font-medium tracking-tight placeholder-slate-400"
       />
     </div>
   );

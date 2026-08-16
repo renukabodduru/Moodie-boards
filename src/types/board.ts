@@ -44,6 +44,7 @@ export interface CanvasObject {
   id: string;
   boardId: string;
   parentId?: string; // If inside a column container
+  groupId?: string; // If part of a grouped selection
   type: ObjectType;
   x: number;
   y: number;
@@ -91,6 +92,7 @@ export interface Board {
   updatedAt: number;
   icon?: string;
   theme?: string;
+  isFavorite?: boolean;
 }
 
 export interface CommentItem {
