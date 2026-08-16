@@ -212,3 +212,42 @@ export function getBoundingBox(
     height: Math.max(maxY - minY, 400),
   };
 }
+
+export function findFreeSpace(
+  startX: number,
+  startY: number,
+  width: number,
+  height: number,
+  objects: Pick<CanvasObject, 'id' | 'x' | 'y' | 'width' | 'height'>[],
+  ignoreIds: string[] = []
+): Point {
+  const GAP = 20;
+  let currentX = startX;
+  let currentY = startY;
+
+  let hasOverlap = true;
+  let iterations = 0;
+
+  // Try to find a free space. We shift down and right slightly upon collision.
+  while (hasOverlap && iterations < 50) {
+    hasOverlap = false;
+    for (const obj of objects) {
+      if (ignoreIds.includes(obj.id)) continue;
+
+      const overlapX = currentX < obj.x + obj.width + GAP && currentX + width + GAP > obj.x;
+      const overlapY = currentY < obj.y + obj.height + GAP && currentY + height + GAP > obj.y;
+
+      if (overlapX && overlapY) {
+        hasOverlap = true;
+        // Shift down below the collided object
+        currentY = obj.y + obj.height + GAP;
+        // Also slightly stagger to the right to cascade if multiple collisions
+        currentX += 10;
+        break; // restart check with new currentY
+      }
+    }
+    iterations++;
+  }
+
+  return { x: currentX, y: currentY };
+}

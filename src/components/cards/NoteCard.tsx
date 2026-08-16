@@ -73,7 +73,7 @@ export const NoteCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
         value={text}
         onChange={handleChange}
         placeholder="Start typing note..."
-        className="w-full h-full bg-transparent resize-none focus:outline-none text-[15px] text-slate-800 leading-[1.6] font-medium tracking-tight placeholder-slate-400"
+        className="w-full h-full bg-transparent resize-none focus:outline-none text-[15px] text-slate-800 leading-[1.6] font-medium tracking-tight placeholder-slate-300 focus:placeholder-transparent"
       />
     </div>
   );

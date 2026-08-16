@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useBoard } from '../../context/BoardContext';
 import { CanvasObject, AnchorPosition } from '../../types/board';
-import { getAllAnchors } from '../../utils/geometry';
+import { getAllAnchors, findFreeSpace } from '../../utils/geometry';
 import {
   Lock,
   Unlock,
@@ -590,6 +590,30 @@ export const BaseCard: React.FC<BaseCardProps> = ({
           ) {
             // Dragged within same column, reorder!
             setTimeout(() => reorderColumn(parentColumn.id), 50);
+          }
+
+          // Force to free space if overlapping
+          if (!parentColumn) {
+            const { x: freeX, y: freeY } = findFreeSpace(
+              finalX,
+              finalY,
+              object.width,
+              object.height,
+              boardObjects,
+              Object.keys(positions)
+            );
+
+            if (freeX !== finalX || freeY !== finalY) {
+              const adjustX = freeX - finalX;
+              const adjustY = freeY - finalY;
+              
+              Object.entries(positions).forEach(([id, startPosition]) => {
+                updateObject(id, {
+                  x: startPosition.x + dx + adjustX,
+                  y: startPosition.y + dy + adjustY,
+                });
+              });
+            }
           }
         }
 

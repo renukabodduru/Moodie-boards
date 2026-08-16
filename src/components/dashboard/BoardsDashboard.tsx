@@ -16,7 +16,6 @@ import {
   Copy,
   Edit2,
   Star,
-  LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -33,8 +32,6 @@ export const BoardsDashboard: React.FC = () => {
     objects,
     applyTemplate,
   } = useBoard();
-  
-  const { signOut } = useAuth();
 
   const [newBoardName, setNewBoardName] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -108,15 +105,6 @@ export const BoardsDashboard: React.FC = () => {
           >
             <Plus className="w-4 h-4" />
             <span>Create New Board</span>
-          </button>
-          
-          <button
-            onClick={signOut}
-            className="p-2 md:px-4 md:py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-2xl text-xs flex items-center gap-2 transition-all"
-            title="Log out"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="hidden md:inline">Log out</span>
           </button>
         </div>
       </header>
