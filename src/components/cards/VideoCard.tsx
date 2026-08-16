@@ -10,9 +10,13 @@ export const VideoCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const src = URL.createObjectURL(file);
-      setUrl(src);
-      updateObject(object.id, { content: { ...object.content, url: src } });
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const src = event.target?.result as string;
+        setUrl(src);
+        updateObject(object.id, { content: { ...object.content, url: src } });
+      };
+      reader.readAsDataURL(file);
     }
   };
 

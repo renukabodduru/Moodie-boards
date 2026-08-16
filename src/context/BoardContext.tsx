@@ -26,8 +26,8 @@ interface BoardHistoryState {
 
 export interface BoardContextType {
   // Navigation & View Mode
-  viewMode: 'dashboard' | 'canvas';
-  setViewMode: (mode: 'dashboard' | 'canvas') => void;
+  viewMode: 'landing' | 'dashboard' | 'canvas';
+  setViewMode: (mode: 'landing' | 'dashboard' | 'canvas') => void;
   boards: Board[];
   currentBoardId: string;
   activeBoard: Board;
@@ -122,7 +122,7 @@ const BoardContext = createContext<BoardContextType | undefined>(undefined);
 
 export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [viewMode, setViewMode] = useState<'dashboard' | 'canvas'>('dashboard');
+  const [viewMode, setViewMode] = useState<'landing' | 'dashboard' | 'canvas'>('landing');
   const [boards, setBoards] = useState<Board[]>([DEFAULT_HOME_BOARD]);
   const [currentBoardId, setCurrentBoardId] = useState<string>('home');
   const [objects, setObjects] = useState<CanvasObject[]>([]);
