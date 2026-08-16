@@ -301,7 +301,7 @@ export const Canvas: React.FC = () => {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`relative w-full h-full overflow-hidden bg-slate-50 select-none canvas-bg-layer ${
+      className={`relative w-full h-full overflow-hidden bg-premium-canvas select-none canvas-bg-layer ${
         spacePressed || isPanning ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
       }`}
     >

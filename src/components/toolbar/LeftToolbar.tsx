@@ -46,29 +46,29 @@ export const LeftToolbar: React.FC = () => {
   };
 
   const TOOL_ITEMS: Array<{ type: ObjectType; label: string; icon: React.ReactNode; glassClass: string }> = [
-    { type: 'note', label: 'Note', icon: <FileText className="w-5 h-5" />, glassClass: 'bg-gradient-to-br from-amber-400/30 to-amber-500/10 text-amber-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
-    { type: 'image', label: 'Image', icon: <ImageIcon className="w-5 h-5" />, glassClass: 'bg-gradient-to-br from-emerald-400/30 to-emerald-500/10 text-emerald-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
-    { type: 'todo', label: 'To-do', icon: <CheckSquare className="w-5 h-5" />, glassClass: 'bg-gradient-to-br from-blue-400/30 to-blue-500/10 text-blue-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
-    { type: 'link', label: 'Link', icon: <Link2 className="w-5 h-5" />, glassClass: 'bg-gradient-to-br from-cyan-400/30 to-cyan-500/10 text-cyan-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
-    { type: 'board', label: 'Board', icon: <FolderKanban className="w-5 h-5" />, glassClass: 'bg-gradient-to-br from-purple-400/30 to-purple-500/10 text-purple-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
-    { type: 'column', label: 'Column', icon: <Columns className="w-5 h-5" />, glassClass: 'bg-gradient-to-br from-pink-400/30 to-pink-500/10 text-pink-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
+    { type: 'note', label: 'Note', icon: <FileText className="w-5 h-5" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
+    { type: 'image', label: 'Image', icon: <ImageIcon className="w-5 h-5" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
+    { type: 'todo', label: 'To-do', icon: <CheckSquare className="w-5 h-5" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
+    { type: 'link', label: 'Link', icon: <Link2 className="w-5 h-5" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
+    { type: 'board', label: 'Board', icon: <FolderKanban className="w-5 h-5" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
+    { type: 'column', label: 'Column', icon: <Columns className="w-5 h-5" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
   ];
 
   const MORE_ITEMS: Array<{ type: ObjectType; label: string; icon: React.ReactNode; glassClass: string }> = [
-    { type: 'heading', label: 'Heading', icon: <HeadingIcon className="w-4 h-4" />, glassClass: 'bg-gradient-to-br from-rose-400/30 to-rose-500/10 text-rose-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
-    { type: 'video', label: 'Video', icon: <Video className="w-4 h-4" />, glassClass: 'bg-gradient-to-br from-red-400/30 to-red-500/10 text-red-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
-    { type: 'audio', label: 'Audio', icon: <Music className="w-4 h-4" />, glassClass: 'bg-gradient-to-br from-indigo-400/30 to-indigo-500/10 text-indigo-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
-    { type: 'document', label: 'Document', icon: <FileDown className="w-4 h-4" />, glassClass: 'bg-gradient-to-br from-sky-400/30 to-sky-500/10 text-sky-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
-    { type: 'sketch', label: 'Draw', icon: <Edit3 className="w-4 h-4" />, glassClass: 'bg-gradient-to-br from-fuchsia-400/30 to-fuchsia-500/10 text-fuchsia-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
-    { type: 'color', label: 'Color', icon: <Palette className="w-4 h-4" />, glassClass: 'bg-gradient-to-br from-orange-400/30 to-orange-500/10 text-orange-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
-    { type: 'table', label: 'Table', icon: <TableIcon className="w-4 h-4" />, glassClass: 'bg-gradient-to-br from-teal-400/30 to-teal-500/10 text-teal-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
-    { type: 'map', label: 'Map', icon: <MapPin className="w-4 h-4" />, glassClass: 'bg-gradient-to-br from-lime-500/30 to-lime-600/10 text-lime-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
-    { type: 'comment', label: 'Comment', icon: <MessageSquare className="w-4 h-4" />, glassClass: 'bg-gradient-to-br from-yellow-400/30 to-yellow-500/10 text-yellow-600 border border-white/60 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_4px_10px_rgba(0,0,0,0.05)]' },
+    { type: 'heading', label: 'Heading', icon: <HeadingIcon className="w-4 h-4" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
+    { type: 'video', label: 'Video', icon: <Video className="w-4 h-4" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
+    { type: 'audio', label: 'Audio', icon: <Music className="w-4 h-4" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
+    { type: 'document', label: 'Document', icon: <FileDown className="w-4 h-4" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
+    { type: 'sketch', label: 'Draw', icon: <Edit3 className="w-4 h-4" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
+    { type: 'color', label: 'Color', icon: <Palette className="w-4 h-4" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
+    { type: 'table', label: 'Table', icon: <TableIcon className="w-4 h-4" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
+    { type: 'map', label: 'Map', icon: <MapPin className="w-4 h-4" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
+    { type: 'comment', label: 'Comment', icon: <MessageSquare className="w-4 h-4" />, glassClass: 'bg-white text-premium-black border border-premium shadow-sm' },
   ];
 
   return (
     <>
-      <aside className="fixed bottom-4 left-1/2 -translate-x-1/2 md:left-4 md:top-1/2 md:-translate-y-1/2 md:-translate-x-0 md:bottom-auto z-40 bg-[#f4f5f7] border border-white shadow-[0_10px_40px_rgba(0,0,0,0.08)] rounded-[2.5rem] p-3 flex flex-row md:flex-col items-center gap-1 transition-all w-[calc(100vw-2rem)] md:w-auto max-w-full md:max-h-[calc(100vh-2rem)]">
+      <aside className="fixed bottom-4 left-1/2 -translate-x-1/2 md:left-4 md:top-1/2 md:-translate-y-1/2 md:-translate-x-0 md:bottom-auto z-40 bg-white/90 backdrop-blur-xl border border-premium shadow-premium-elevated rounded-[2.5rem] p-3 flex flex-row md:flex-col items-center gap-1 transition-all w-[calc(100vw-2rem)] md:w-auto max-w-full md:max-h-[calc(100vh-2rem)]">
         
         {/* Dashboard Home Button */}
         <button

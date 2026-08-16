@@ -14,7 +14,7 @@ export const NoteCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
 
   const resizeTextarea = () => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = '1px'; // Force shrink to measure true scrollHeight
+      textareaRef.current.style.height = 'auto'; // Force shrink to measure true scrollHeight
       const scrollHeight = textareaRef.current.scrollHeight;
       const minHeight = 150;
       const targetHeight = Math.max(minHeight, scrollHeight + 40);
@@ -47,7 +47,7 @@ export const NoteCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
             setText(next);
             updateObject(object.id, { content: { ...object.content, text: next } });
           }}
-          className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded text-xs"
+          className="p-1 text-neutral-400 hover:text-premium-black hover:bg-neutral-100 rounded text-xs"
           title="Bold"
         >
           <Bold className="w-3 h-3" />
@@ -58,7 +58,7 @@ export const NoteCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
             setText(next);
             updateObject(object.id, { content: { ...object.content, text: next } });
           }}
-          className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded text-xs"
+          className="p-1 text-neutral-400 hover:text-premium-black hover:bg-neutral-100 rounded text-xs"
           title="Italic"
         >
           <Italic className="w-3 h-3" />
@@ -69,7 +69,7 @@ export const NoteCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
             setText(next);
             updateObject(object.id, { content: { ...object.content, text: next } });
           }}
-          className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded text-xs"
+          className="p-1 text-neutral-400 hover:text-premium-black hover:bg-neutral-100 rounded text-xs"
           title="Bullet List"
         >
           <List className="w-3 h-3" />
@@ -81,7 +81,7 @@ export const NoteCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
         value={text}
         onChange={handleChange}
         placeholder="Start typing note..."
-        className="w-full h-full bg-transparent resize-none focus:outline-none text-[15px] text-slate-800 leading-[1.6] font-medium tracking-tight placeholder-slate-400"
+        className="w-full h-full bg-transparent resize-none focus:outline-none text-[15px] text-premium-black leading-[1.6] font-medium tracking-tight placeholder-neutral-400"
       />
     </div>
   );

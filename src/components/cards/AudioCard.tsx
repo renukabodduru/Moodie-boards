@@ -35,16 +35,16 @@ export const AudioCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
             setTitle(e.target.value);
             updateObject(object.id, { content: { ...object.content, title: e.target.value } });
           }}
-          className="font-semibold text-xs bg-transparent focus:outline-none text-slate-800 flex-1 truncate"
+          className="font-semibold text-xs bg-transparent focus:outline-none text-premium-black flex-1 truncate"
         />
       </div>
 
       {url ? (
         <audio src={url} controls className="w-full h-8" />
       ) : (
-        <label className="flex-1 w-full border border-slate-200 bg-slate-50 rounded-xl flex items-center justify-center gap-2 p-2 cursor-pointer hover:bg-slate-100 transition-colors">
+        <label className="flex-1 w-full border border-premium bg-premium-canvas rounded-xl flex items-center justify-center gap-2 p-2 cursor-pointer hover:bg-neutral-100 transition-colors">
           <Mic className="w-4 h-4 text-pink-500" />
-          <span className="text-xs text-slate-600 font-medium">Upload Audio</span>
+          <span className="text-xs text-premium-gray font-medium">Upload Audio</span>
           <input type="file" accept="audio/*" onChange={handleFileUpload} className="hidden" />
         </label>
       )}

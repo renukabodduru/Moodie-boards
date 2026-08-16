@@ -845,19 +845,19 @@ export const BaseCard: React.FC<BaseCardProps> = ({
           ease-out
           ${isDragging
             ? `
-                shadow-apple-elevated
+                shadow-premium-elevated
                 ring-1
-                ring-indigo-200
+                ring-premium
                 scale-105
               `
             : ''
           }
-          ${isSelected && !isMultiSelected ? 'ring-2 ring-indigo-500 shadow-[0_8px_30px_rgb(99,102,241,0.3)]' : 'shadow-apple-soft'}
-          ${isMultiSelected ? 'ring-2 ring-indigo-400 shadow-[0_4px_20px_rgb(99,102,241,0.2)]' : ''}
-          ${hoveredColumnId === object.id && object.type === 'column' ? 'ring-4 ring-indigo-300 bg-indigo-50/50' : ''}
+          ${isSelected && !isMultiSelected ? 'ring-2 ring-neutral-400 shadow-premium-elevated' : 'shadow-premium border border-premium bg-white'}
+          ${isMultiSelected ? 'ring-2 ring-neutral-400 shadow-premium' : ''}
+          ${hoveredColumnId === object.id && object.type === 'column' ? 'ring-2 ring-[#FF6B3D] bg-orange-50/20' : ''}
           ${
             !isSelected && !isDragging
-              ? 'hover:-translate-y-1 hover:shadow-apple-elevated hover:ring-1 hover:ring-indigo-100'
+              ? 'hover:-translate-y-[3px] hover:shadow-premium-elevated hover:border-neutral-300'
               : ''
           }
         `}
@@ -939,13 +939,13 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                 -top-12
                 left-1/2
                 -translate-x-1/2
-                bg-slate-900/90
+                bg-premium-canvas/90
                 backdrop-blur-md
                 text-white
                 rounded-xl
                 shadow-xl
                 border
-                border-slate-700
+                border-premium
                 px-3
                 py-1
                 flex
@@ -966,7 +966,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                     font-extrabold
                     text-neutral-300
                     border-r
-                    border-slate-700
+                    border-premium
                     pr-2
                   "
                 >
@@ -986,9 +986,9 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                   }
                   className="
                     p-1
-                    hover:bg-slate-800
+                    hover:bg-premium-canvas
                     rounded-lg
-                    text-slate-300
+                    text-premium-gray
                     hover:text-white
                     transition-colors
                   "
@@ -1003,9 +1003,9 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                       absolute
                       top-8
                       left-0
-                      bg-slate-800
+                      bg-premium-canvas
                       border
-                      border-slate-700
+                      border-premium
                       rounded-xl
                       p-2
                       shadow-xl
@@ -1072,9 +1072,9 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                   }}
                   className="
                     p-1
-                    hover:bg-slate-800
+                    hover:bg-premium-canvas
                     rounded-lg
-                    text-slate-300
+                    text-premium-gray
                     hover:text-white
                     transition-colors
                   "
@@ -1096,9 +1096,9 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                 }
                 className="
                   p-1
-                  hover:bg-slate-800
+                  hover:bg-premium-canvas
                   rounded-lg
-                  text-slate-300
+                  text-premium-gray
                   hover:text-white
                   transition-colors
                 "
@@ -1118,9 +1118,9 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                 }
                 className="
                   p-1
-                  hover:bg-slate-800
+                  hover:bg-premium-canvas
                   rounded-lg
-                  text-slate-300
+                  text-premium-gray
                   hover:text-white
                   transition-colors
                 "
@@ -1140,9 +1140,9 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                 }
                 className="
                   p-1
-                  hover:bg-slate-800
+                  hover:bg-premium-canvas
                   rounded-lg
-                  text-slate-300
+                  text-premium-gray
                   hover:text-white
                   transition-colors
                 "
@@ -1162,9 +1162,9 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                 }
                 className="
                   p-1
-                  hover:bg-slate-800
+                  hover:bg-premium-canvas
                   rounded-lg
-                  text-slate-300
+                  text-premium-gray
                   hover:text-white
                   transition-colors
                 "
@@ -1185,7 +1185,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                 }
                 className="
                   p-1
-                  hover:bg-slate-800
+                  hover:bg-premium-canvas
                   rounded-lg
                   text-red-400
                   hover:text-red-300
@@ -1302,7 +1302,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
               absolute
               -bottom-7
               right-0
-              bg-slate-900
+              bg-premium-canvas
               text-white
               text-[10px]
               font-mono
@@ -1417,7 +1417,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
             fixed
             z-50
             glass-panel
-            text-slate-700
+            text-premium-black
             rounded-2xl
             shadow-apple-elevated
             border-white/40
@@ -1458,14 +1458,14 @@ export const BaseCard: React.FC<BaseCardProps> = ({
               px-3
               py-2
               text-left
-              hover:bg-slate-100/60
+              hover:bg-neutral-100/60
               flex
               items-center
               gap-2
               transition-colors
             "
           >
-            <Copy className="w-3.5 h-3.5 text-slate-500" />
+            <Copy className="w-3.5 h-3.5 text-premium-gray" />
 
             {isMultiSelected
               ? `Duplicate (${selectedIds.length})`
@@ -1492,14 +1492,14 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                 px-3
                 py-2
                 text-left
-                hover:bg-slate-100/60
+                hover:bg-neutral-100/60
                 flex
                 items-center
                 gap-2
                 transition-colors
               "
             >
-              <Link2 className="w-3.5 h-3.5 text-slate-500" />
+              <Link2 className="w-3.5 h-3.5 text-premium-gray" />
               Group / Ungroup
             </button>
           )}
@@ -1515,14 +1515,14 @@ export const BaseCard: React.FC<BaseCardProps> = ({
               px-3
               py-2
               text-left
-              hover:bg-slate-100/60
+              hover:bg-neutral-100/60
               flex
               items-center
               gap-2
               transition-colors
             "
           >
-            <Copy className="w-3.5 h-3.5 text-slate-500" />
+            <Copy className="w-3.5 h-3.5 text-premium-gray" />
             Copy
           </button>
 
@@ -1537,14 +1537,14 @@ export const BaseCard: React.FC<BaseCardProps> = ({
               px-3
               py-2
               text-left
-              hover:bg-slate-100/60
+              hover:bg-neutral-100/60
               flex
               items-center
               gap-2
               transition-colors
             "
           >
-            <ClipboardPaste className="w-3.5 h-3.5 text-slate-500" />
+            <ClipboardPaste className="w-3.5 h-3.5 text-premium-gray" />
             Paste
           </button>
 
@@ -1568,7 +1568,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
               px-3
               py-2
               text-left
-              hover:bg-slate-100/60
+              hover:bg-neutral-100/60
               flex
               items-center
               gap-2
@@ -1576,9 +1576,9 @@ export const BaseCard: React.FC<BaseCardProps> = ({
             "
           >
             {object.locked ? (
-              <Unlock className="w-3.5 h-3.5 text-slate-500" />
+              <Unlock className="w-3.5 h-3.5 text-premium-gray" />
             ) : (
-              <Lock className="w-3.5 h-3.5 text-slate-500" />
+              <Lock className="w-3.5 h-3.5 text-premium-gray" />
             )}
 
             {object.locked
@@ -1604,14 +1604,14 @@ export const BaseCard: React.FC<BaseCardProps> = ({
               px-3
               py-2
               text-left
-              hover:bg-slate-100/60
+              hover:bg-neutral-100/60
               flex
               items-center
               gap-2
               transition-colors
             "
           >
-            <Palette className="w-3.5 h-3.5 text-slate-500" />
+            <Palette className="w-3.5 h-3.5 text-premium-gray" />
 
             Add Comment
           </button>
@@ -1620,7 +1620,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
             className="
               my-1
               border-t
-              border-slate-200/50
+              border-premium/50
             "
           />
 

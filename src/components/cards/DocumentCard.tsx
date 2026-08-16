@@ -32,9 +32,9 @@ export const DocumentCard: React.FC<{ object: CanvasObject }> = ({ object }) => 
               setFileName(e.target.value);
               updateObject(object.id, { content: { ...object.content, fileName: e.target.value } });
             }}
-            className="font-bold text-xs bg-transparent focus:outline-none text-slate-800 w-full truncate"
+            className="font-bold text-xs bg-transparent focus:outline-none text-premium-black w-full truncate"
           />
-          <span className="text-[10px] text-slate-400">PDF / Document File</span>
+          <span className="text-[10px] text-neutral-400">PDF / Document File</span>
         </div>
       </div>
 
@@ -48,7 +48,7 @@ export const DocumentCard: React.FC<{ object: CanvasObject }> = ({ object }) => 
           <Download className="w-3.5 h-3.5" /> Download File
         </a>
       ) : (
-        <label className="mt-3 flex items-center justify-center gap-1.5 w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium cursor-pointer transition-colors">
+        <label className="mt-3 flex items-center justify-center gap-1.5 w-full py-1.5 bg-neutral-100 hover:bg-premium-canvas text-premium-black rounded-xl text-xs font-medium cursor-pointer transition-colors">
           <Upload className="w-3.5 h-3.5" /> Select Document
           <input type="file" onChange={handleFileUpload} className="hidden" />
         </label>

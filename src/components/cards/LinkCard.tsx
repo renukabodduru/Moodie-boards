@@ -33,7 +33,7 @@ export const LinkCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
   return (
     <div className="w-full h-full flex flex-col justify-between">
       <div className="flex items-start gap-2">
-        <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl flex-shrink-0">
+        <div className="p-2 bg-premium-black text-premium-black rounded-xl flex-shrink-0">
           <Globe className="w-4 h-4" />
         </div>
         <div className="flex-1 min-w-0">
@@ -45,7 +45,7 @@ export const LinkCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
               updateObject(object.id, { content: { ...object.content, title: e.target.value } });
             }}
             placeholder="Link Title..."
-            className="w-full font-bold text-sm bg-transparent focus:outline-none text-slate-800 truncate"
+            className="w-full font-bold text-sm bg-transparent focus:outline-none text-premium-black truncate"
           />
           <input
             type="text"
@@ -55,7 +55,7 @@ export const LinkCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
               updateObject(object.id, { content: { ...object.content, url: e.target.value } });
             }}
             placeholder="https://example.com"
-            className="w-full text-xs text-indigo-600 bg-transparent focus:outline-none truncate hover:underline"
+            className="w-full text-xs text-premium-black bg-transparent focus:outline-none truncate hover:underline"
           />
         </div>
         {url && (
@@ -64,7 +64,7 @@ export const LinkCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="p-1 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-100"
+            className="p-1 text-neutral-400 hover:text-premium-black rounded-lg hover:bg-neutral-100"
             title="Open Website"
           >
             <ExternalLink className="w-3.5 h-3.5" />
@@ -80,7 +80,7 @@ export const LinkCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
           updateObject(object.id, { content: { ...object.content, description: e.target.value } });
         }}
         placeholder="Add description..."
-        className="w-full h-12 mt-2 text-xs text-slate-500 bg-transparent resize-none focus:outline-none placeholder-slate-400"
+        className="w-full h-12 mt-2 text-xs text-premium-gray bg-transparent resize-none focus:outline-none placeholder-slate-400"
       />
     </div>
   );

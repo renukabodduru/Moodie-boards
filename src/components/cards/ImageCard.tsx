@@ -26,7 +26,7 @@ export const ImageCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
   return (
     <div className="w-full h-full flex flex-col justify-between group/img">
       {url ? (
-        <div className="relative flex-1 w-full overflow-hidden rounded-xl bg-slate-100/50 flex items-center justify-center">
+        <div className="relative flex-1 w-full overflow-hidden rounded-xl bg-neutral-100/50 flex items-center justify-center">
           <img src={url} alt={caption} className={`w-full h-full rounded-xl pointer-events-none object-${fitMode}`} />
           
           <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-0 group-hover/img:opacity-100 transition-opacity">
@@ -36,29 +36,29 @@ export const ImageCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
                 setFitMode(next);
                 updateObject(object.id, { content: { ...object.content, fitMode: next } });
               }}
-              className="p-1.5 bg-slate-900/70 text-white rounded-lg hover:bg-slate-900 shadow-md backdrop-blur-sm"
+              className="p-1.5 bg-premium-canvas/70 text-white rounded-lg hover:bg-premium-canvas shadow-md backdrop-blur-sm"
               title="Toggle Fit/Crop"
             >
               <Crop className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => setIsLightboxOpen(true)}
-              className="p-1.5 bg-slate-900/70 text-white rounded-lg hover:bg-slate-900 shadow-md backdrop-blur-sm"
+              className="p-1.5 bg-premium-canvas/70 text-white rounded-lg hover:bg-premium-canvas shadow-md backdrop-blur-sm"
               title="Fullscreen Preview"
             >
               <Maximize2 className="w-3.5 h-3.5" />
             </button>
-            <label className="p-1.5 bg-slate-900/70 text-white rounded-lg cursor-pointer hover:bg-slate-900 shadow-md backdrop-blur-sm" title="Replace Image">
+            <label className="p-1.5 bg-premium-canvas/70 text-white rounded-lg cursor-pointer hover:bg-premium-canvas shadow-md backdrop-blur-sm" title="Replace Image">
               <Upload className="w-3.5 h-3.5" />
               <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
             </label>
           </div>
         </div>
       ) : (
-        <label className="flex-1 w-full border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center p-4 cursor-pointer hover:bg-slate-50 transition-colors">
-          <ImageIcon className="w-8 h-8 text-slate-400 mb-1" />
-          <span className="text-xs font-semibold text-slate-600">Upload Image</span>
-          <span className="text-[10px] text-slate-400">Click or drag photo</span>
+        <label className="flex-1 w-full border-2 border-dashed border-premium rounded-xl flex flex-col items-center justify-center p-4 cursor-pointer hover:bg-premium-canvas transition-colors">
+          <ImageIcon className="w-8 h-8 text-neutral-400 mb-1" />
+          <span className="text-xs font-semibold text-premium-gray">Upload Image</span>
+          <span className="text-[10px] text-neutral-400">Click or drag photo</span>
           <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
         </label>
       )}
@@ -71,7 +71,7 @@ export const ImageCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
           updateObject(object.id, { content: { ...object.content, caption: e.target.value } });
         }}
         placeholder="Add image caption..."
-        className="w-full mt-2 text-xs text-center text-slate-500 bg-transparent focus:outline-none placeholder-slate-400"
+        className="w-full mt-2 text-xs text-center text-premium-gray bg-transparent focus:outline-none placeholder-slate-400"
       />
 
       {isLightboxOpen && url && (

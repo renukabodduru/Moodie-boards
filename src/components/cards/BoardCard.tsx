@@ -35,7 +35,7 @@ export const BoardCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
               updateObject(object.id, { content: { ...object.content, title: e.target.value } });
             }}
             placeholder="Board Name"
-            className="font-bold text-sm bg-transparent focus:outline-none text-slate-900 w-full truncate"
+            className="font-bold text-sm bg-transparent focus:outline-none text-premium-black w-full truncate"
           />
           <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">
             Nested Workspace

@@ -78,7 +78,7 @@ export const SketchCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
   return (
     <div className="w-full h-full flex flex-col justify-between relative group/sketch">
       {/* Sketching Tool palette */}
-      <div className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-slate-900/80 backdrop-blur text-white p-1 rounded-xl shadow opacity-0 group-hover/sketch:opacity-100 transition-opacity">
+      <div className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-premium-canvas/80 backdrop-blur text-white p-1 rounded-xl shadow opacity-0 group-hover/sketch:opacity-100 transition-opacity">
         {['#4f46e5', '#ec4899', '#10b981', '#000000'].map((c) => (
           <button
             key={c}
@@ -94,12 +94,12 @@ export const SketchCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
         ))}
         <button
           onClick={() => setIsEraser(!isEraser)}
-          className={`p-1 rounded hover:bg-slate-700 ${isEraser ? 'bg-indigo-600 text-white' : 'text-slate-300'}`}
+          className={`p-1 rounded hover:bg-premium-canvas ${isEraser ? 'bg-premium-black text-white' : 'text-premium-gray'}`}
           title="Eraser"
         >
           <Eraser className="w-3 h-3" />
         </button>
-        <button onClick={clearCanvas} className="p-1 rounded hover:bg-slate-700 text-red-400" title="Clear Canvas">
+        <button onClick={clearCanvas} className="p-1 rounded hover:bg-premium-canvas text-red-400" title="Clear Canvas">
           <RotateCcw className="w-3 h-3" />
         </button>
       </div>
@@ -112,7 +112,7 @@ export const SketchCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
-        className="w-full h-full cursor-crosshair rounded-xl bg-white border border-slate-100"
+        className="w-full h-full cursor-crosshair rounded-xl bg-white border border-premium"
       />
     </div>
   );

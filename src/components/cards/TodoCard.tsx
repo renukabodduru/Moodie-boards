@@ -73,12 +73,12 @@ export const TodoCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
               setTitle(e.target.value);
               updateObject(object.id, { content: { ...object.content, title: e.target.value } });
             }}
-            className="font-bold text-sm bg-transparent focus:outline-none text-slate-800"
+            className="font-bold text-sm bg-transparent focus:outline-none text-premium-black"
           />
-          <span className="text-xs font-semibold text-slate-400">{progressPercent}%</span>
+          <span className="text-xs font-semibold text-neutral-400">{progressPercent}%</span>
         </div>
 
-        <div className="w-full h-1.5 bg-slate-100 rounded-full mb-3 overflow-hidden">
+        <div className="w-full h-1.5 bg-neutral-100 rounded-full mb-3 overflow-hidden">
           <div
             className="h-full bg-emerald-500 transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
@@ -89,7 +89,7 @@ export const TodoCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
         <div className="space-y-1.5 pr-1">
           {items.map((item) => (
             <div key={item.id} className="flex items-center gap-2 group/item">
-              <button onClick={() => toggleCheck(item.id)} className="text-slate-400 hover:text-emerald-600">
+              <button onClick={() => toggleCheck(item.id)} className="text-neutral-400 hover:text-emerald-600">
                 {item.completed ? (
                   <CheckSquare className="w-4 h-4 text-emerald-600" />
                 ) : (
@@ -104,7 +104,7 @@ export const TodoCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
                   updateItems(items.map((i) => (i.id === item.id ? { ...i, text: val } : i)));
                 }}
                 className={`flex-1 text-xs bg-transparent focus:outline-none ${
-                  item.completed ? 'line-through text-slate-400' : 'text-slate-700'
+                  item.completed ? 'line-through text-neutral-400' : 'text-premium-black'
                 }`}
               />
               <button
@@ -120,7 +120,7 @@ export const TodoCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
 
       <button
         onClick={addItem}
-        className="mt-2 flex items-center justify-center gap-1 w-full py-1 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-xs font-medium border border-slate-200"
+        className="mt-2 flex items-center justify-center gap-1 w-full py-1 bg-premium-canvas hover:bg-neutral-100 text-premium-gray rounded-lg text-xs font-medium border border-premium"
       >
         <Plus className="w-3.5 h-3.5" /> Add Item
       </button>

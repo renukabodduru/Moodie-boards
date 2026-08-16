@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useBoard } from '../../context/BoardContext';
 import {
   getAnchorCoordinates,
@@ -404,7 +405,10 @@ export const SVGConnectionLayer: React.FC = () => {
                   MAIN ARROW LINE
                   ================================================= */}
 
-              <path
+              <motion.path
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
                 d={path}
                 fill="none"
                 stroke={color}

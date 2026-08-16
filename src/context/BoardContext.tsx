@@ -26,8 +26,8 @@ interface BoardHistoryState {
 
 export interface BoardContextType {
   // Navigation & View Mode
-  viewMode: 'dashboard' | 'canvas';
-  setViewMode: (mode: 'dashboard' | 'canvas') => void;
+  viewMode: 'dashboard' | 'canvas' | 'landing';
+  setViewMode: (mode: 'dashboard' | 'canvas' | 'landing') => void;
   boards: Board[];
   currentBoardId: string;
   activeBoard: Board;
@@ -107,7 +107,7 @@ export interface BoardContextType {
   saveStatus: 'saved' | 'saving';
 
   // Templates & Search & Presences
-  applyTemplate: (templateId: string) => void;
+  applyTemplate: (templateId: string, targetBoardId?: string) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   userPresences: UserPresence[];
@@ -122,7 +122,7 @@ const BoardContext = createContext<BoardContextType | undefined>(undefined);
 
 export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [viewMode, setViewMode] = useState<'dashboard' | 'canvas'>('dashboard');
+  const [viewMode, setViewMode] = useState<'dashboard' | 'canvas' | 'landing'>('landing');
   const [boards, setBoards] = useState<Board[]>([DEFAULT_HOME_BOARD]);
   const [currentBoardId, setCurrentBoardId] = useState<string>('home');
   const [objects, setObjects] = useState<CanvasObject[]>([]);
@@ -850,14 +850,15 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [historyIndex, history]);
 
-  const applyTemplate = useCallback((templateId: string) => {
+  const applyTemplate = useCallback((templateId: string, targetBoardId?: string) => {
     const tmpl = INITIAL_TEMPLATES.find((t) => t.id === templateId);
     if (!tmpl) return;
 
     const timestamp = Date.now();
     const idMap: Record<string, string> = {};
+    const boardToUse = targetBoardId || currentBoardId;
 
-    const currentBoardObjects = objects.filter(o => o.boardId === currentBoardId);
+    const currentBoardObjects = objects.filter(o => o.boardId === boardToUse);
     let offsetY = 0;
     if (currentBoardObjects.length > 0) {
       const maxY = Math.max(...currentBoardObjects.map(o => o.y + o.height));
@@ -869,7 +870,7 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (o.id) idMap[o.id] = newId;
       return {
         id: newId,
-        boardId: currentBoardId,
+        boardId: boardToUse,
         type: o.type || 'note',
         x: o.x || 100,
         y: (o.y || 100) + offsetY,
@@ -885,7 +886,7 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const newConnections: Connection[] = tmpl.connections.map((c, idx) => ({
       id: `tmpl-conn-${timestamp}-${idx}`,
-      boardId: currentBoardId,
+      boardId: boardToUse,
       source: {
         objectId: idMap[c.source?.objectId || ''] || c.source?.objectId || '',
         anchor: c.source?.anchor || 'right',

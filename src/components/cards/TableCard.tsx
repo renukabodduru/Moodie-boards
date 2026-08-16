@@ -55,9 +55,9 @@ export const TableCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
     <div className="w-full h-full flex flex-col justify-between overflow-x-auto" ref={contentRef}>
       <table className="w-full text-xs text-left border-collapse">
         <thead>
-          <tr className="bg-slate-100 border-b border-slate-200">
+          <tr className="bg-neutral-100 border-b border-premium">
             {headers.map((h, colIdx) => (
-              <th key={colIdx} className="p-1.5 font-bold text-slate-700">
+              <th key={colIdx} className="p-1.5 font-bold text-premium-black">
                 <input
                   type="text"
                   value={h}
@@ -74,7 +74,7 @@ export const TableCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
         </thead>
         <tbody>
           {rows.map((row, rowIdx) => (
-            <tr key={rowIdx} className="border-b border-slate-100 hover:bg-slate-50">
+            <tr key={rowIdx} className="border-b border-premium hover:bg-premium-canvas">
               {row.map((cell, colIdx) => (
                 <td key={colIdx} className="p-1.5">
                   <input
@@ -86,7 +86,7 @@ export const TableCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
                       );
                       updateTableData(headers, nextRows);
                     }}
-                    className="bg-transparent focus:outline-none w-full text-slate-700"
+                    className="bg-transparent focus:outline-none w-full text-premium-black"
                   />
                 </td>
               ))}
@@ -95,16 +95,16 @@ export const TableCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
         </tbody>
       </table>
 
-      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100">
+      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-premium">
         <button
           onClick={addRow}
-          className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[10px] font-semibold flex items-center gap-1"
+          className="px-2 py-0.5 bg-neutral-100 hover:bg-premium-canvas text-premium-black rounded text-[10px] font-semibold flex items-center gap-1"
         >
           <Plus className="w-3 h-3" /> Row
         </button>
         <button
           onClick={addColumn}
-          className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[10px] font-semibold flex items-center gap-1"
+          className="px-2 py-0.5 bg-neutral-100 hover:bg-premium-canvas text-premium-black rounded text-[10px] font-semibold flex items-center gap-1"
         >
           <Plus className="w-3 h-3" /> Column
         </button>

@@ -9,6 +9,8 @@ import { ZoomControls } from './components/controls/ZoomControls';
 import { BoardsDashboard } from './components/dashboard/BoardsDashboard';
 import { CommandPalette } from './components/CommandPalette';
 
+import { LandingPage } from './components/landing/LandingPage';
+
 const MainLayout: React.FC = () => {
   const {
     viewMode,
@@ -76,6 +78,10 @@ const MainLayout: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [undo, redo, selectedIds, deleteSelectedObjects, duplicateSelectedObjects, clearSelection, copySelectedObjects, pasteObjects, selectedLineId, deleteConnection]);
+
+  if (viewMode === 'landing') {
+    return <LandingPage />;
+  }
 
   if (viewMode === 'dashboard') {
     return <BoardsDashboard />;

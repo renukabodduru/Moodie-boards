@@ -33,7 +33,7 @@ export const TopBar: React.FC = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-40 h-16 bg-white/70 backdrop-blur-xl border-b border-white/50 px-3 md:px-6 flex items-center justify-between shadow-sm select-none gap-2">
+      <header className="fixed top-0 left-0 right-0 z-40 h-16 bg-white/80 backdrop-blur-xl border-b border-premium px-3 md:px-6 flex items-center justify-between shadow-sm select-none gap-2">
         {/* Navigation & Breadcrumbs */}
         <div className="flex items-center gap-2 md:gap-3 shrink-0">
           {/* Back to All Boards Dashboard Button */}
