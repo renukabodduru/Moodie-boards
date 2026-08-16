@@ -36,7 +36,9 @@ export const AudioCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
       </div>
 
       {url ? (
-        <audio src={url} controls className="w-full h-8" />
+        <div onMouseDown={(e) => e.stopPropagation()}>
+          <audio src={url} controls className="w-full h-8" />
+        </div>
       ) : (
         <label className="flex-1 w-full border border-slate-200 bg-slate-50 rounded-xl flex items-center justify-center gap-2 p-2 cursor-pointer hover:bg-slate-100 transition-colors">
           <Mic className="w-4 h-4 text-pink-500" />
