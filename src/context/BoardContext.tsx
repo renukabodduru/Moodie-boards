@@ -286,12 +286,12 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           width = 360;
           height = 75;
           defaultStyle = { bg: 'transparent', color: '#0f172a' };
-          content = { text: 'New Heading', level: 'h1', ...initialContent };
+          content = { text: '', level: 'h1', ...initialContent };
           break;
         case 'note':
           width = 240;
           height = 150;
-          content = { text: 'Start typing note...', ...initialContent };
+          content = { text: '', ...initialContent };
           break;
         case 'todo':
           width = 260;

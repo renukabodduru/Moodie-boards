@@ -29,8 +29,13 @@ export const LeftToolbar: React.FC = () => {
   const [showMore, setShowMore] = useState(false);
 
   const handleAddAtCenter = (type: ObjectType) => {
-    const centerX = (window.innerWidth / 2 - pan.x) / zoom - 120;
-    const centerY = (window.innerHeight / 2 - pan.y) / zoom - 80;
+    // Add a small random offset (-20px to +20px) so multiple clicks don't perfectly overlap
+    const jitterX = Math.random() * 40 - 20;
+    const jitterY = Math.random() * 40 - 20;
+    
+    const centerX = (window.innerWidth / 2 - pan.x) / zoom - 120 + jitterX;
+    const centerY = (window.innerHeight / 2 - pan.y) / zoom - 80 + jitterY;
+    
     addObject(type, centerX, centerY);
     setShowMore(false);
   };

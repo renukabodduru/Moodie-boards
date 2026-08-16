@@ -4,7 +4,7 @@ import { CanvasObject } from '../../types/board';
 
 export const HeadingCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
   const { updateObject } = useBoard();
-  const [text, setText] = useState<string>(object.content.text || 'Heading');
+  const [text, setText] = useState<string>(object.content.text ?? '');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
