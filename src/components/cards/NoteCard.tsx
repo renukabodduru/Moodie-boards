@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useBoard } from '../../context/BoardContext';
 import { CanvasObject } from '../../types/board';
 import { Bold, Italic, List, CheckSquare } from 'lucide-react';
@@ -12,24 +12,29 @@ export const NoteCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const resizeTextarea = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '1px'; // Force shrink to measure true scrollHeight
+      const scrollHeight = textareaRef.current.scrollHeight;
+      const minHeight = 150;
+      const targetHeight = Math.max(minHeight, scrollHeight + 40);
+      
+      textareaRef.current.style.height = '100%';
+
+      if (targetHeight !== object.height) {
+        updateObject(object.id, { height: targetHeight });
+      }
+    }
+  };
+
+  useEffect(() => {
+    resizeTextarea();
+  }, [text]);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     setText(val);
-    
-    let newHeight = object.height;
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      const scrollHeight = textareaRef.current.scrollHeight;
-      if (scrollHeight > object.height - 30) {
-        newHeight = scrollHeight + 30;
-      }
-      textareaRef.current.style.height = '100%';
-    }
-    
-    updateObject(object.id, { 
-      content: { ...object.content, text: val },
-      ...(newHeight !== object.height ? { height: newHeight } : {})
-    });
+    updateObject(object.id, { content: { ...object.content, text: val } });
   };
 
   return (
