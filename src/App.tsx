@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { BoardProvider, useBoard } from './context/BoardContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { AuthScreen } from './components/auth/AuthScreen';
+
 import { TopBar } from './components/topbar/TopBar';
 import { LeftToolbar } from './components/toolbar/LeftToolbar';
 import { Canvas } from './components/canvas/Canvas';
@@ -99,33 +98,11 @@ const MainLayout: React.FC = () => {
   );
 };
 
-const AppContent: React.FC = () => {
-  const { session, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="w-screen h-screen flex items-center justify-center bg-slate-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return <AuthScreen />;
-  }
-
+export function App() {
   return (
     <BoardProvider>
       <MainLayout />
     </BoardProvider>
-  );
-};
-
-export function App() {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
   );
 }
 

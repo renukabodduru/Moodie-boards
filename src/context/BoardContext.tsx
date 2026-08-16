@@ -18,7 +18,6 @@ import {
   DEFAULT_HOME_BOARD,
   INITIAL_TEMPLATES,
 } from '../utils/storage';
-import { useAuth } from './AuthContext';
 
 interface BoardHistoryState {
   objects: CanvasObject[];
@@ -122,8 +121,6 @@ export interface BoardContextType {
 const BoardContext = createContext<BoardContextType | undefined>(undefined);
 
 export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
-  
   const [isLoaded, setIsLoaded] = useState(false);
   const [viewMode, setViewMode] = useState<'dashboard' | 'canvas'>('dashboard');
   const [boards, setBoards] = useState<Board[]>([DEFAULT_HOME_BOARD]);
@@ -134,11 +131,9 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [trash, setTrash] = useState<CanvasObject[]>([]);
 
   useEffect(() => {
-    if (!user) return;
-    
     let isMounted = true;
     const fetchWorkspace = async () => {
-      const data = await loadSavedWorkspace(user.id);
+      const data = await loadSavedWorkspace();
       if (isMounted) {
         setBoards(data.boards);
         setObjects(data.objects);
@@ -149,11 +144,11 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     };
     fetchWorkspace();
-    
+
     return () => {
       isMounted = false;
     };
-  }, [user]);
+  }, []);
 
   // Selection & Tools
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -211,15 +206,15 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Auto Save Engine
   useEffect(() => {
-    if (!isLoaded || !user) return;
-    
+    if (!isLoaded) return;
+
     setSaveStatus('saving');
     const timer = setTimeout(() => {
-      saveWorkspace(user.id, { boards, objects, connections, comments, trash });
+      saveWorkspace({ boards, objects, connections, comments, trash });
       setSaveStatus('saved');
     }, 1500); // Increased debounce for DB saving
     return () => clearTimeout(timer);
-  }, [boards, objects, connections, comments, trash, isLoaded, user]);
+  }, [boards, objects, connections, comments, trash, isLoaded]);
 
   // Board CRUD
   const createBoard = useCallback((name: string, parentId?: string): string => {
@@ -525,7 +520,7 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         parsed.objects.forEach((src: CanvasObject, idx: number) => {
           const newId = `obj-${Date.now()}-${idx}-${Math.random().toString(36).substr(2, 4)}`;
-          
+
           let newGroupId = src.groupId;
           if (newGroupId) {
             if (!groupMap.has(newGroupId)) {
@@ -645,7 +640,7 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const toggleSelectObject = useCallback((id: string, multiSelect: boolean = false) => {
     setSelectedLineId(null);
     const obj = objects.find(o => o.id === id);
-    const groupIdsToToggle = obj?.groupId 
+    const groupIdsToToggle = obj?.groupId
       ? objects.filter(o => o.groupId === obj.groupId).map(o => o.id)
       : [id];
 

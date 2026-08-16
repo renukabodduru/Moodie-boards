@@ -7,8 +7,8 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
-  signInWithEmail: (email: string, pass: string) => Promise<{error: any}>;
-  signUpWithEmail: (email: string, pass: string) => Promise<{error: any}>;
+  signInWithEmail: (email: string, pass: string) => Promise<{ error: any }>;
+  signUpWithEmail: (email: string, pass: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -16,10 +16,10 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   loading: true,
-  signInWithGoogle: async () => {},
-  signInWithEmail: async () => ({error: null}),
-  signUpWithEmail: async () => ({error: null}),
-  signOut: async () => {},
+  signInWithGoogle: async () => { },
+  signInWithEmail: async () => ({ error: null }),
+  signUpWithEmail: async () => ({ error: null }),
+  signOut: async () => { },
 });
 
 export const useAuth = () => useContext(AuthContext);

@@ -1,5 +1,4 @@
 import { Board, CanvasObject, Connection, CommentItem, Template } from '../types/board';
-import { supabase } from '../lib/supabase';
 
 const STORAGE_KEYS = {
   BOARDS: 'moodie_boards',
@@ -414,7 +413,7 @@ export const SAMPLE_INITIAL_CONNECTIONS: Connection[] = [
   },
 ];
 
-export async function loadSavedWorkspace(userId: string): Promise<{
+export async function loadSavedWorkspace(): Promise<{
   boards: Board[];
   objects: CanvasObject[];
   connections: Connection[];
@@ -422,18 +421,9 @@ export async function loadSavedWorkspace(userId: string): Promise<{
   trash: CanvasObject[];
 }> {
   try {
-    const { data: profileData, error } = await supabase
-      .from('profiles')
-      .select('workspace_data')
-      .eq('id', userId)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      console.error('Failed to load workspace from Supabase:', error);
-    }
-
-    if (profileData && profileData.workspace_data) {
-      const data = profileData.workspace_data;
+    const saved = localStorage.getItem('moodie_workspace_data');
+    if (saved) {
+      const data = JSON.parse(saved);
       return {
         boards: data.boards || [DEFAULT_HOME_BOARD],
         objects: data.objects || SAMPLE_INITIAL_OBJECTS,
@@ -443,7 +433,7 @@ export async function loadSavedWorkspace(userId: string): Promise<{
       };
     }
   } catch (err) {
-    console.error('Exception loading workspace:', err);
+    console.error('Exception loading local workspace:', err);
   }
 
   return {
@@ -455,7 +445,7 @@ export async function loadSavedWorkspace(userId: string): Promise<{
   };
 }
 
-export async function saveWorkspace(userId: string, data: {
+export async function saveWorkspace(data: {
   boards: Board[];
   objects: CanvasObject[];
   connections: Connection[];
@@ -463,20 +453,8 @@ export async function saveWorkspace(userId: string, data: {
   trash: CanvasObject[];
 }) {
   try {
-    const { error } = await supabase
-      .from('profiles')
-      .upsert({
-        id: userId,
-        workspace_data: data,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'id'
-      });
-
-    if (error) {
-      console.error('Failed to auto-save workspace to Supabase:', error);
-    }
+    localStorage.setItem('moodie_workspace_data', JSON.stringify(data));
   } catch (err) {
-    console.error('Exception saving workspace to Supabase:', err);
+    console.error('Exception saving workspace locally:', err);
   }
 }
