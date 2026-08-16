@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useBoard } from '../../context/BoardContext';
 import { CanvasObject } from '../../types/board';
 import { MessageSquare, Check, Reply } from 'lucide-react';
@@ -14,6 +14,27 @@ export const CommentCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
     setResolved(next);
     updateObject(object.id, { content: { ...object.content, resolved: next } });
   };
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const resizeTextarea = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '1px';
+      const scrollHeight = textareaRef.current.scrollHeight;
+      const minHeight = 120; // default minimum height
+      const targetHeight = Math.max(minHeight, scrollHeight + 45); // offset for header
+
+      textareaRef.current.style.height = '100%';
+
+      if (targetHeight !== object.height) {
+        updateObject(object.id, { height: targetHeight });
+      }
+    }
+  };
+
+  useEffect(() => {
+    resizeTextarea();
+  }, [text]);
 
   return (
     <div className={`w-full h-full flex flex-col justify-between ${resolved ? 'opacity-50' : ''}`}>
@@ -39,6 +60,7 @@ export const CommentCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
       </div>
 
       <textarea
+        ref={textareaRef}
         value={text}
         onChange={(e) => {
           setText(e.target.value);

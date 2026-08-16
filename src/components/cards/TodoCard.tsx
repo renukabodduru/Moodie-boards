@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useBoard } from '../../context/BoardContext';
 import { CanvasObject } from '../../types/board';
 import { CheckSquare, Square, Plus, Trash2 } from 'lucide-react';
@@ -18,6 +18,27 @@ export const TodoCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
     setItems(newItems);
     updateObject(object.id, { content: { ...object.content, items: newItems } });
   };
+
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const resizeCard = () => {
+    if (contentRef.current) {
+      contentRef.current.style.height = 'auto';
+      const scrollHeight = contentRef.current.scrollHeight;
+      const minHeight = 180;
+      const targetHeight = Math.max(minHeight, scrollHeight + 32); // padding offset
+      
+      contentRef.current.style.height = '100%';
+
+      if (targetHeight !== object.height) {
+        updateObject(object.id, { height: targetHeight });
+      }
+    }
+  };
+
+  useEffect(() => {
+    resizeCard();
+  }, [items, title]);
 
   const toggleCheck = (id: string) => {
     const next = items.map((i) => (i.id === id ? { ...i, completed: !i.completed } : i));
@@ -41,7 +62,7 @@ export const TodoCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
   const progressPercent = items.length ? Math.round((completedCount / items.length) * 100) : 0;
 
   return (
-    <div className="w-full h-full flex flex-col justify-between">
+    <div className="w-full h-full flex flex-col justify-between" ref={contentRef}>
       <div>
         {/* Title & Progress bar */}
         <div className="flex items-center justify-between mb-2">
@@ -65,7 +86,7 @@ export const TodoCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
         </div>
 
         {/* Task Items List */}
-        <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+        <div className="space-y-1.5 pr-1">
           {items.map((item) => (
             <div key={item.id} className="flex items-center gap-2 group/item">
               <button onClick={() => toggleCheck(item.id)} className="text-slate-400 hover:text-emerald-600">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useBoard } from '../../context/BoardContext';
 import { CanvasObject } from '../../types/board';
 import { Plus, Trash2, Table as TableIcon } from 'lucide-react';
@@ -19,6 +19,27 @@ export const TableCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
     updateObject(object.id, { content: { ...object.content, headers: newHeaders, rows: newRows } });
   };
 
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const resizeCard = () => {
+    if (contentRef.current) {
+      contentRef.current.style.height = 'auto';
+      const scrollHeight = contentRef.current.scrollHeight;
+      const minHeight = 150;
+      const targetHeight = Math.max(minHeight, scrollHeight + 10);
+      
+      contentRef.current.style.height = '100%';
+
+      if (targetHeight !== object.height) {
+        updateObject(object.id, { height: targetHeight });
+      }
+    }
+  };
+
+  useEffect(() => {
+    resizeCard();
+  }, [rows, headers]);
+
   const addRow = () => {
     const newRow = new Array(headers.length).fill('Cell');
     updateTableData(headers, [...rows, newRow]);
@@ -31,7 +52,7 @@ export const TableCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col justify-between overflow-x-auto">
+    <div className="w-full h-full flex flex-col justify-between overflow-x-auto" ref={contentRef}>
       <table className="w-full text-xs text-left border-collapse">
         <thead>
           <tr className="bg-slate-100 border-b border-slate-200">

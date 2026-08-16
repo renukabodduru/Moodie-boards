@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useBoard } from '../../context/BoardContext';
 import { CanvasObject } from '../../types/board';
 import { ExternalLink, Globe, Play, Film } from 'lucide-react';
@@ -8,6 +8,27 @@ export const LinkCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
   const [url, setUrl] = useState<string>(object.content.url || '');
   const [title, setTitle] = useState<string>(object.content.title || '');
   const [description, setDescription] = useState<string>(object.content.description || '');
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const resizeTextarea = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '1px';
+      const scrollHeight = textareaRef.current.scrollHeight;
+      const minHeight = 110;
+      const targetHeight = Math.max(minHeight, scrollHeight + 70); // Add offset for the header area
+      
+      textareaRef.current.style.height = '100%';
+
+      if (targetHeight !== object.height) {
+        updateObject(object.id, { height: targetHeight });
+      }
+    }
+  };
+
+  useEffect(() => {
+    resizeTextarea();
+  }, [description]);
 
   return (
     <div className="w-full h-full flex flex-col justify-between">
@@ -52,6 +73,7 @@ export const LinkCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
       </div>
 
       <textarea
+        ref={textareaRef}
         value={description}
         onChange={(e) => {
           setDescription(e.target.value);
