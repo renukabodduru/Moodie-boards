@@ -711,7 +711,6 @@ export const BaseCard: React.FC<BaseCardProps> = ({
     anchor: AnchorPosition
   ) => {
     e.stopPropagation();
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
 
     const canvasX =
       (e.clientX - pan.x) /
@@ -727,20 +726,6 @@ export const BaseCard: React.FC<BaseCardProps> = ({
       canvasX,
       canvasY
     );
-  };
-
-  /*
-   * ============================================================
-   * FINISH CONNECTION
-   * ============================================================
-   */
-
-  const handleAnchorPointerUp = (
-    e: React.PointerEvent,
-    anchor: AnchorPosition
-  ) => {
-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-    // Let event bubble to Canvas.tsx which handles finishing the connection via snapping
   };
 
   /*
@@ -1362,12 +1347,6 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                 }
                 onPointerDown={(e) =>
                   handleAnchorPointerDown(
-                    e,
-                    position
-                  )
-                }
-                onPointerUp={(e) =>
-                  handleAnchorPointerUp(
                     e,
                     position
                   )

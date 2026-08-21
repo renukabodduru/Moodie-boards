@@ -160,7 +160,7 @@ export const Canvas: React.FC = () => {
 
       let bestTargetId: string | undefined;
       let bestTargetAnchor: any | undefined;
-      let minDst = 40 / zoom;
+      let minDst = 75 / zoom; // Increased for better mobile touch snapping
       let snapPt = pt;
 
       boardObjects.forEach((obj) => {
@@ -298,6 +298,8 @@ export const Canvas: React.FC = () => {
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      onPointerLeave={handlePointerUp}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
