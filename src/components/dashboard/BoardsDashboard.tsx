@@ -59,9 +59,9 @@ export const BoardsDashboard: React.FC = () => {
   };
 
   return (
-    <div className="w-screen h-screen overflow-y-auto bg-premium-canvas font-sans text-premium-black select-none">
+    <div className="w-screen h-screen overflow-y-auto bg-transparent font-sans text-primary-text select-none">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-premium px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+      <header className="sticky top-0 z-30 glass-panel border-b border-white/60 px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3 w-full md:w-auto cursor-pointer group" onClick={() => setViewMode('landing')}>
           <div className="w-10 h-10 rounded-xl bg-premium-black flex items-center justify-center text-white font-black text-xl shadow-md group-hover:rotate-6 transition-transform">
             M
@@ -93,14 +93,14 @@ export const BoardsDashboard: React.FC = () => {
 
           <button
             onClick={() => setViewMode('landing')}
-            className="hidden md:flex px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-premium-black font-medium rounded-lg text-sm items-center transition-all shadow-sm"
+            className="hidden md:flex px-6 py-2 pill-button text-primary-text font-bold text-xs uppercase tracking-widest items-center"
           >
             Home
           </button>
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="hidden md:flex px-4 py-2 bg-premium-black hover:bg-neutral-800 text-white font-medium rounded-lg text-sm items-center gap-2 transition-all shadow-sm"
+            className="hidden md:flex px-6 py-2 pill-button text-primary-text font-bold text-xs uppercase tracking-widest items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             <span>New Board</span>
@@ -110,45 +110,45 @@ export const BoardsDashboard: React.FC = () => {
 
       <main className="max-w-6xl mx-auto px-6 py-12">
         {/* Banner Section */}
-        <div className="relative overflow-hidden rounded-2xl bg-premium-black text-white p-10 mb-12 shadow-premium-elevated border border-neutral-800">
+        <div className="relative overflow-hidden rounded-3xl glass-panel p-10 mb-12 border border-white/80 shadow-[0_8px_32px_rgba(31,38,135,0.05)]">
           <div className="relative z-10 max-w-2xl">
-            <span className="font-mono-tech text-[10px] text-accent uppercase tracking-widest border border-accent/30 bg-accent/10 px-3 py-1 rounded-full mb-6 inline-block">
+            <span className="font-bold text-[10px] text-primary-text uppercase tracking-widest border border-primary-text/20 bg-white/50 px-4 py-1.5 rounded-full mb-6 inline-block shadow-sm">
               Infinite Canvas
             </span>
-            <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-4">
-              Organize thoughts, visual media & ideas freely.
+            <h2 className="text-3xl md:text-5xl font-medium tracking-extra-wide text-primary-text mb-4 uppercase leading-tight">
+              Organize <br/><span className="text-2xl md:text-4xl tracking-widest text-secondary-text">Thoughts & Ideas</span>
             </h2>
-            <p className="text-sm text-neutral-400 leading-relaxed mb-8 font-medium">
+            <p className="text-sm text-secondary-text leading-relaxed mb-8 font-medium">
               Create unlimited visual boards, arrange cards anywhere on the canvas, connect notes with smart arrows, and sketch freely without boundaries.
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-6 py-3 bg-white text-premium-black font-bold rounded-lg text-sm flex items-center gap-2 hover:bg-neutral-100 transition-all shadow-sm"
+              className="px-8 py-3.5 pill-button text-primary-text font-bold text-xs uppercase tracking-widest flex items-center gap-2"
             >
               <Plus className="w-4 h-4" /> Start Blank Workspace
             </button>
           </div>
           
-          {/* Subtle dot-matrix overlay on right side of banner */}
-          <div className="absolute right-0 top-0 w-1/2 h-full opacity-20 dot-matrix-bg pointer-events-none [mask-image:linear-gradient(to_left,black,transparent)]" />
+          {/* Subtle overlay on right side of banner */}
+          <div className="absolute right-0 top-0 w-1/2 h-full opacity-30 dot-matrix-bg pointer-events-none [mask-image:linear-gradient(to_left,black,transparent)]" />
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-premium pb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-white/40 pb-6">
           <div className="flex items-center gap-3">
-            <h3 className="font-bold text-xl text-premium-black tracking-tight">Your Boards</h3>
-            <span className="px-2 py-0.5 bg-neutral-200 text-premium-black font-mono-tech text-[10px] rounded">
+            <h3 className="font-bold text-xl text-primary-text tracking-widest uppercase">Your Boards</h3>
+            <span className="px-3 py-1 bg-white/60 text-primary-text font-bold text-xs rounded-full shadow-sm">
               {filteredBoards.length}
             </span>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 p-1 bg-white/40 backdrop-blur-md rounded-full border border-white/60 shadow-sm">
             {(['all', 'recent', 'favorites'] as const).map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-1.5 rounded text-xs font-semibold capitalize transition-all ${
-                  selectedCategory === cat ? 'bg-premium-black text-white' : 'bg-transparent text-premium-gray hover:bg-neutral-200'
+                className={`px-5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
+                  selectedCategory === cat ? 'bg-white shadow-sm text-primary-text' : 'bg-transparent text-secondary-text hover:text-primary-text'
                 }`}
               >
                 {cat}
@@ -162,13 +162,13 @@ export const BoardsDashboard: React.FC = () => {
           {/* Create New Tile */}
           <div
             onClick={() => setShowCreateModal(true)}
-            className="h-[220px] rounded-2xl border border-dashed border-neutral-300 hover:border-premium-black bg-transparent hover:bg-neutral-50/50 p-6 flex flex-col items-center justify-center text-center cursor-pointer group transition-all duration-200"
+            className="h-[220px] rounded-3xl border border-dashed border-primary-text/30 hover:border-primary-text bg-white/20 hover:bg-white/40 backdrop-blur-md p-6 flex flex-col items-center justify-center text-center cursor-pointer group transition-all duration-300"
           >
-            <div className="w-12 h-12 rounded-xl bg-white border border-premium flex items-center justify-center mb-4 group-hover:bg-premium-black group-hover:text-white group-hover:border-premium-black text-premium-gray transition-all shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-white/80 border border-white flex items-center justify-center mb-4 text-primary-text shadow-sm group-hover:scale-110 transition-transform duration-300">
               <Plus className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-sm text-premium-black">Create New Board</h4>
-            <p className="text-xs text-premium-gray mt-1 font-medium">Start a fresh canvas</p>
+            <h4 className="font-bold text-xs uppercase tracking-widest text-primary-text">Create New Board</h4>
+            <p className="text-xs text-secondary-text mt-2 font-medium tracking-wide">Start a fresh canvas</p>
           </div>
 
           {/* Existing Boards */}
@@ -180,7 +180,7 @@ export const BoardsDashboard: React.FC = () => {
               <div
                 key={board.id}
                 onClick={() => handleOpenBoard(board.id)}
-                className="h-[220px] rounded-2xl bg-white border border-premium p-6 flex flex-col justify-between shadow-premium hover:shadow-premium-elevated hover:-translate-y-1 cursor-pointer group transition-all duration-300 relative overflow-hidden"
+                className="h-[220px] rounded-3xl glass-panel p-6 flex flex-col justify-between hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1 cursor-pointer group transition-all duration-300 relative overflow-hidden"
               >
                 {/* Favorite badge indicator */}
                 {board.isFavorite && (

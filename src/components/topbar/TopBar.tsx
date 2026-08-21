@@ -33,7 +33,7 @@ export const TopBar: React.FC = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-40 h-16 bg-white/80 backdrop-blur-xl border-b border-premium px-3 md:px-6 flex items-center justify-between shadow-sm select-none gap-2">
+      <header className="fixed top-0 left-0 right-0 z-40 h-16 glass-panel border-b border-white/60 px-3 md:px-6 flex items-center justify-between shadow-[0_4px_20px_rgba(31,38,135,0.03)] select-none gap-2">
         {/* Navigation & Breadcrumbs */}
         <div className="flex items-center gap-2 md:gap-3 shrink-0">
           {/* Back to All Boards Dashboard Button */}
@@ -72,10 +72,10 @@ export const TopBar: React.FC = () => {
         <div className="flex items-center gap-2 md:gap-3 justify-center shrink">
           <button
             onClick={() => setShowAI(true)}
-            className="px-2.5 md:px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-2xl text-xs flex items-center gap-2 shadow-md shadow-purple-500/25 transition-all hover:scale-105 active:scale-95 shrink-0"
+            className="px-4 py-2 pill-button text-primary-text font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 shrink-0 transition-transform hover:-translate-y-[2px]"
             title="AI Superpowers"
           >
-            <Sparkles className="w-4 h-4 animate-spin-slow" />
+            <Sparkles className="w-4 h-4 animate-spin-slow text-accent" />
             <span className="hidden lg:inline">AI Superpowers</span>
             <span className="hidden sm:inline lg:hidden">AI</span>
           </button>
@@ -141,7 +141,7 @@ export const TopBar: React.FC = () => {
           {/* Export Board */}
           <button
             onClick={() => setShowExport(true)}
-            className="px-2.5 md:px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/20 transition-colors"
+            className="px-4 py-2 pill-button text-primary-text font-bold text-[10px] uppercase tracking-widest flex items-center gap-1.5 transition-transform hover:-translate-y-[2px]"
             title="Export"
           >
             <Download className="w-4 h-4" />

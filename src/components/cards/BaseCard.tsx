@@ -164,8 +164,8 @@ export const BaseCard: React.FC<BaseCardProps> = ({
    * ============================================================
    */
 
-  const handleMouseDown = (
-    e: React.MouseEvent
+  const handlePointerDown = (
+    e: React.PointerEvent
   ) => {
     if (object.locked) return;
 
@@ -256,8 +256,8 @@ export const BaseCard: React.FC<BaseCardProps> = ({
    */
 
   useEffect(() => {
-    const handleMouseMove = (
-      e: MouseEvent
+    const handlePointerMove = (
+      e: PointerEvent
     ) => {
       /*
        * ========================================================
@@ -482,7 +482,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
      * ==========================================================
      */
 
-    const handleMouseUp = () => {
+    const handlePointerUp = () => {
       /*
        * --------------------------------------------------------
        * FINISH CARD DRAG
@@ -645,25 +645,25 @@ export const BaseCard: React.FC<BaseCardProps> = ({
       resizeMode !== 'none'
     ) {
       window.addEventListener(
-        'mousemove',
-        handleMouseMove
+        'pointermove',
+        handlePointerMove
       );
 
       window.addEventListener(
-        'mouseup',
-        handleMouseUp
+        'pointerup',
+        handlePointerUp
       );
     }
 
     return () => {
       window.removeEventListener(
-        'mousemove',
-        handleMouseMove
+        'pointermove',
+        handlePointerMove
       );
 
       window.removeEventListener(
-        'mouseup',
-        handleMouseUp
+        'pointerup',
+        handlePointerUp
       );
     };
   }, [
@@ -682,7 +682,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
    */
 
   const handleResizeStart = (
-    e: React.MouseEvent,
+    e: React.PointerEvent,
     mode:
       | 'corner'
       | 'right'
@@ -706,8 +706,8 @@ export const BaseCard: React.FC<BaseCardProps> = ({
    * ============================================================
    */
 
-  const handleAnchorMouseDown = (
-    e: React.MouseEvent,
+  const handleAnchorPointerDown = (
+    e: React.PointerEvent,
     anchor: AnchorPosition
   ) => {
     e.stopPropagation();
@@ -734,8 +734,8 @@ export const BaseCard: React.FC<BaseCardProps> = ({
    * ============================================================
    */
 
-  const handleAnchorMouseUp = (
-    e: React.MouseEvent,
+  const handleAnchorPointerUp = (
+    e: React.PointerEvent,
     anchor: AnchorPosition
   ) => {
     e.stopPropagation();
@@ -765,8 +765,8 @@ export const BaseCard: React.FC<BaseCardProps> = ({
     <div
       id={`card-${object.id}`}
       ref={cardRef}
-      onMouseDown={
-        handleMouseDown
+      onPointerDown={
+        handlePointerDown
       }
       onContextMenu={(e) => {
         e.preventDefault();
@@ -838,33 +838,37 @@ export const BaseCard: React.FC<BaseCardProps> = ({
         className={`
           w-full
           h-full
-          rounded-3xl
           relative
           transition-all
           duration-300
           ease-out
           ${isDragging
             ? `
-                shadow-premium-elevated
                 ring-1
                 ring-premium
                 scale-105
               `
             : ''
           }
-          ${isSelected && !isMultiSelected ? 'ring-2 ring-neutral-400 shadow-premium-elevated' : 'shadow-premium border border-premium bg-white'}
-          ${isMultiSelected ? 'ring-2 ring-neutral-400 shadow-premium' : ''}
-          ${hoveredColumnId === object.id && object.type === 'column' ? 'ring-2 ring-[#FF6B3D] bg-orange-50/20' : ''}
+          ${isSelected && !isMultiSelected ? 'ring-2 ring-neutral-400' : ''}
+          ${isMultiSelected ? 'ring-2 ring-neutral-400' : ''}
+          ${hoveredColumnId === object.id && object.type === 'column' ? 'ring-2 ring-[#FF6B3D] bg-orange-50/30' : ''}
           ${
             !isSelected && !isDragging
-              ? 'hover:-translate-y-[3px] hover:shadow-premium-elevated hover:border-neutral-300'
+              ? 'hover:-translate-y-[3px] hover:border-neutral-300'
               : ''
           }
         `}
         style={{
+          borderRadius: '32px',
+          boxShadow: isSelected 
+            ? '0 16px 48px rgba(0,0,0,0.08)' 
+            : '0 8px 30px rgba(0,0,0,0.04), 0 4px 10px rgba(0,0,0,0.02)',
           backgroundColor:
             object.style?.bg ||
             '#ffffff',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
 
           color:
             object.style?.color ||
@@ -872,12 +876,12 @@ export const BaseCard: React.FC<BaseCardProps> = ({
 
           borderColor:
             object.style?.borderColor ||
-            'transparent',
+            'rgba(0,0,0,0.03)',
 
           borderWidth:
             object.style?.borderColor
               ? '2px'
-              : '0px',
+              : '1px',
 
           borderStyle:
             object.style?.borderStyle ||
@@ -1208,7 +1212,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
               {/* CORNER */}
 
               <div
-                onMouseDown={(e) =>
+                onPointerDown={(e) =>
                   handleResizeStart(
                     e,
                     'corner'
@@ -1236,7 +1240,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
               {/* RIGHT */}
 
               <div
-                onMouseDown={(e) =>
+                onPointerDown={(e) =>
                   handleResizeStart(
                     e,
                     'right'
@@ -1264,7 +1268,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
               {/* BOTTOM */}
 
               <div
-                onMouseDown={(e) =>
+                onPointerDown={(e) =>
                   handleResizeStart(
                     e,
                     'bottom'
@@ -1359,14 +1363,14 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                 style={
                   posStyle
                 }
-                onMouseDown={(e) =>
-                  handleAnchorMouseDown(
+                onPointerDown={(e) =>
+                  handleAnchorPointerDown(
                     e,
                     position
                   )
                 }
-                onMouseUp={(e) =>
-                  handleAnchorMouseUp(
+                onPointerUp={(e) =>
+                  handleAnchorPointerUp(
                     e,
                     position
                   )

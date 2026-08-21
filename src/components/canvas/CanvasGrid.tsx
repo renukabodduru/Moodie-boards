@@ -11,7 +11,7 @@ export const CanvasGrid: React.FC = () => {
     <div
       className="absolute inset-0 pointer-events-none select-none overflow-hidden"
       style={{
-        backgroundImage: `radial-gradient(circle, #DCDAD5 ${dotSize}px, transparent ${dotSize}px)`,
+        backgroundImage: `radial-gradient(circle, rgba(0, 0, 0, 0.06) ${dotSize}px, transparent ${dotSize}px)`,
         backgroundSize: `${gridGap}px ${gridGap}px`,
         backgroundPosition: `${pan.x}px ${pan.y}px`,
       }}

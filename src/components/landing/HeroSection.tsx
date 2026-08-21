@@ -91,12 +91,15 @@ export const HeroSection: React.FC = () => {
           transition={{ duration: 0.8 }}
           className="mb-10 w-full"
         >
-          <span className="px-5 py-2 rounded-full border border-premium bg-white shadow-sm text-xs font-bold tracking-widest text-accent uppercase mb-8 inline-block">
+          <span className="px-5 py-2 rounded-full glass-panel text-xs font-bold tracking-widest text-primary-text uppercase mb-8 inline-block shadow-sm">
             Moodie Boards 2.0
           </span>
           
-          <div className="w-full h-[250px] md:h-[400px] mb-8 relative">
-            <DotMatrixText text="CHAOS TO CLARITY" fontSize={220} dotSize={4.5} gap={8} />
+          <div className="w-full flex justify-center items-center h-[200px] md:h-[300px] mb-8 relative">
+            <h1 className="text-5xl md:text-8xl font-medium tracking-extra-wide text-primary-text uppercase leading-tight">
+              Creative<br />
+              <span className="text-3xl md:text-6xl tracking-widest text-secondary-text">Design</span>
+            </h1>
           </div>
         </motion.div>
 
@@ -109,29 +112,6 @@ export const HeroSection: React.FC = () => {
           Your ideas, finally in one place. Collect inspiration, organize your thoughts, and connect concepts on a visual canvas built for creative thinking.
         </motion.p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="flex flex-col sm:flex-row items-center gap-6"
-        >
-          <motion.a
-            href="#create"
-            whileHover={{ y: -3, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="px-8 py-3.5 bg-premium-black text-white rounded-full font-bold text-sm shadow-premium-elevated hover:bg-neutral-800 transition-colors"
-          >
-            Create a Board
-          </motion.a>
-          <motion.a
-            href="#explore"
-            whileHover={{ y: -3, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="px-8 py-3.5 bg-white text-premium-black border border-premium rounded-full font-bold text-sm shadow-premium hover:bg-slate-50 transition-colors"
-          >
-            Explore Boards
-          </motion.a>
-        </motion.div>
       </div>
 
     </section>

@@ -405,10 +405,7 @@ export const SVGConnectionLayer: React.FC = () => {
                   MAIN ARROW LINE
                   ================================================= */}
 
-              <motion.path
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
+              <path
                 d={path}
                 fill="none"
                 stroke={color}
@@ -434,8 +431,6 @@ export const SVGConnectionLayer: React.FC = () => {
                     : undefined
                 }
                 className={`
-                  transition-all
-                  duration-100
                   ${isSelected
                     ? `
                         drop-shadow-[0_0_5px_rgba(0,0,0,0.25)]

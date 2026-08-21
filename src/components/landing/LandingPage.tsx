@@ -17,7 +17,7 @@ export const LandingPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative h-screen overflow-y-auto bg-premium-canvas text-premium-black font-sans selection:bg-orange-200">
+    <div className="relative h-screen overflow-y-auto bg-transparent text-primary-text font-sans selection:bg-pink-200">
       <FloatingNav />
       
       <main className="flex flex-col items-center w-full relative z-10 overflow-hidden">

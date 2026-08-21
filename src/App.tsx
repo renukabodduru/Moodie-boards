@@ -88,7 +88,7 @@ const MainLayout: React.FC = () => {
   }
 
   return (
-    <div className="w-screen h-screen overflow-hidden flex flex-col relative font-sans text-slate-900 antialiased bg-slate-50">
+    <div className="w-screen h-screen overflow-hidden flex flex-col relative font-sans text-slate-900 antialiased bg-transparent">
       {/* Top Bar Navigation */}
       <TopBar />
 

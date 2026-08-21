@@ -29,27 +29,27 @@ export const ImageCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
         <div className="relative flex-1 w-full overflow-hidden rounded-xl bg-neutral-100/50 flex items-center justify-center">
           <img src={url} alt={caption} className={`w-full h-full rounded-xl pointer-events-none object-${fitMode}`} />
           
-          <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-0 group-hover/img:opacity-100 transition-opacity">
+          <div className="absolute bottom-2 right-2 flex gap-1.5 transition-opacity">
             <button
               onClick={() => {
                 const next = fitMode === 'cover' ? 'contain' : 'cover';
                 setFitMode(next);
                 updateObject(object.id, { content: { ...object.content, fitMode: next } });
               }}
-              className="p-1.5 bg-premium-canvas/70 text-white rounded-lg hover:bg-premium-canvas shadow-md backdrop-blur-sm"
+              className="p-1.5 bg-white/80 text-primary-text rounded-lg hover:bg-white shadow-sm backdrop-blur-md transition-colors"
               title="Toggle Fit/Crop"
             >
-              <Crop className="w-3.5 h-3.5" />
+              <Crop className="w-4 h-4" />
             </button>
             <button
               onClick={() => setIsLightboxOpen(true)}
-              className="p-1.5 bg-premium-canvas/70 text-white rounded-lg hover:bg-premium-canvas shadow-md backdrop-blur-sm"
+              className="p-1.5 bg-white/80 text-primary-text rounded-lg hover:bg-white shadow-sm backdrop-blur-md transition-colors"
               title="Fullscreen Preview"
             >
-              <Maximize2 className="w-3.5 h-3.5" />
+              <Maximize2 className="w-4 h-4" />
             </button>
-            <label className="p-1.5 bg-premium-canvas/70 text-white rounded-lg cursor-pointer hover:bg-premium-canvas shadow-md backdrop-blur-sm" title="Replace Image">
-              <Upload className="w-3.5 h-3.5" />
+            <label className="p-1.5 bg-white/80 text-primary-text rounded-lg cursor-pointer hover:bg-white shadow-sm backdrop-blur-md transition-colors" title="Replace Image">
+              <Upload className="w-4 h-4" />
               <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
             </label>
           </div>

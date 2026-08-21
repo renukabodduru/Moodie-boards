@@ -27,7 +27,7 @@ export const TemplateModal: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                 applyTemplate(tmpl.id);
                 onClose();
               }}
-              className="p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-indigo-500 hover:shadow-xl cursor-pointer group transition-all flex flex-col justify-between"
+              className="p-4 rounded-[24px] bg-slate-50 border border-slate-200 hover:border-indigo-500 hover:shadow-[0_16px_48px_rgba(0,0,0,0.08)] cursor-pointer group transition-all flex flex-col justify-between"
             >
               <div>
                 <div

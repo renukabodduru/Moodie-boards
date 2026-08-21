@@ -128,14 +128,14 @@ export const Canvas: React.FC = () => {
     }
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handlePointerDown = (e: React.PointerEvent) => {
     if (e.target !== containerRef.current && !(e.target as HTMLElement).classList.contains('canvas-bg-layer')) {
       return;
     }
 
     clearSelection();
 
-    if (e.button === 1 || spacePressed) {
+    if (e.button === 1 || spacePressed || (e.pointerType === 'touch' && e.isPrimary === false)) {
       setIsPanning(true);
       setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
     } else if (e.button === 0) {
@@ -146,7 +146,7 @@ export const Canvas: React.FC = () => {
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handlePointerMove = (e: React.PointerEvent) => {
     if (isPanning) {
       setPan({
         x: e.clientX - panStart.x,
@@ -190,7 +190,7 @@ export const Canvas: React.FC = () => {
     }
   };
 
-  const handleMouseUp = () => {
+  const handlePointerUp = () => {
     if (isPanning) setIsPanning(false);
 
     if (marqueeRect && marqueeStartRef.current) {
@@ -295,13 +295,13 @@ export const Canvas: React.FC = () => {
     <div
       ref={containerRef}
       onWheel={handleWheel}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`relative w-full h-full overflow-hidden bg-premium-canvas select-none canvas-bg-layer ${
+      className={`relative w-full h-full overflow-hidden bg-premium-canvas select-none touch-none canvas-bg-layer ${
         spacePressed || isPanning ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
       }`}
     >

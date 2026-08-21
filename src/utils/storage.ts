@@ -1,4 +1,5 @@
 import { Board, CanvasObject, Connection, CommentItem, Template } from '../types/board';
+import localforage from 'localforage';
 
 const STORAGE_KEYS = {
   BOARDS: 'moodie_boards',
@@ -421,7 +422,14 @@ export async function loadSavedWorkspace(): Promise<{
   trash: CanvasObject[];
 }> {
   try {
-    const saved = localStorage.getItem('moodie_workspace_data');
+    let saved = await localforage.getItem<string>('moodie_workspace_data');
+    if (!saved) {
+      saved = localStorage.getItem('moodie_workspace_data');
+      if (saved) {
+        await localforage.setItem('moodie_workspace_data', saved);
+      }
+    }
+
     if (saved) {
       const data = JSON.parse(saved);
       return {
@@ -433,7 +441,7 @@ export async function loadSavedWorkspace(): Promise<{
       };
     }
   } catch (err) {
-    console.error('Exception loading local workspace:', err);
+    console.error('Exception loading workspace:', err);
   }
 
   return {
@@ -453,8 +461,8 @@ export async function saveWorkspace(data: {
   trash: CanvasObject[];
 }) {
   try {
-    localStorage.setItem('moodie_workspace_data', JSON.stringify(data));
+    await localforage.setItem('moodie_workspace_data', JSON.stringify(data));
   } catch (err) {
-    console.error('Exception saving workspace locally:', err);
+    console.error('Exception saving workspace:', err);
   }
 }

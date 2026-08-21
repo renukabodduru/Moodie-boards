@@ -24,7 +24,7 @@ export const SketchCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
     }
   }, []);
 
-  const startDrawing = (e: React.MouseEvent) => {
+  const startDrawing = (e: React.PointerEvent) => {
     e.stopPropagation();
     setIsDrawing(true);
     const canvas = canvasRef.current;
@@ -37,7 +37,7 @@ export const SketchCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
     ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
   };
 
-  const draw = (e: React.MouseEvent) => {
+  const draw = (e: React.PointerEvent) => {
     if (!isDrawing) return;
     e.stopPropagation();
     const canvas = canvasRef.current;
@@ -64,7 +64,7 @@ export const SketchCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
     updateObject(object.id, { content: { ...object.content, imageData: dataUrl, color: strokeColor } });
   };
 
-  const clearCanvas = (e: React.MouseEvent) => {
+  const clearCanvas = (e: React.PointerEvent | React.MouseEvent) => {
     e.stopPropagation();
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -108,11 +108,11 @@ export const SketchCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
         ref={canvasRef}
         width={object.width - 32}
         height={object.height - 32}
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-        className="w-full h-full cursor-crosshair rounded-xl bg-white border border-premium"
+        onPointerDown={startDrawing}
+        onPointerMove={draw}
+        onPointerUp={stopDrawing}
+        onPointerLeave={stopDrawing}
+        className="w-full h-full cursor-crosshair rounded-xl bg-white border border-premium touch-none"
       />
     </div>
   );

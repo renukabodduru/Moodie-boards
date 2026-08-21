@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useBoard } from '../../context/BoardContext';
 import { CanvasObject } from '../../types/board';
 import { Copy, Check } from 'lucide-react';
@@ -8,6 +8,35 @@ export const ColorCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
   const [hex, setHex] = useState<string>(object.content.hex || '#6366F1');
   const [name, setName] = useState<string>(object.content.name || 'Swatch Color');
   const [copied, setCopied] = useState<boolean>(false);
+  const lastFetchedHex = useRef(object.content.name === 'Swatch Color' ? '' : hex);
+
+  useEffect(() => {
+    const fetchColorName = async () => {
+      try {
+        const cleanHex = hex.replace('#', '');
+        const res = await fetch(`https://api.color.pizza/v1/${cleanHex}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.colors && data.colors.length > 0) {
+            const fetchedName = data.colors[0].name;
+            setName(fetchedName);
+            lastFetchedHex.current = hex;
+            updateObject(object.id, { content: { ...object.content, hex, name: fetchedName } });
+          }
+        }
+      } catch (err) {
+        // silently fail and keep current name
+      }
+    };
+
+    const timer = setTimeout(() => {
+      if (hex !== lastFetchedHex.current) {
+        fetchColorName();
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [hex]);
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();

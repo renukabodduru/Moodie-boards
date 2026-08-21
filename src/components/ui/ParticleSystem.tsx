@@ -53,18 +53,21 @@ export const ParticleSystem: React.FC<ParticleSystemProps> = ({ scrollProgress }
     let height = 0;
     let particles: Particle[] = [];
     let animationFrameId: number;
+    let initialized = false;
 
-    const initCanvas = () => {
+    const initCanvas = (newWidth: number, newHeight: number) => {
+      if (newWidth === 0 || newHeight === 0) return;
+      
       const dpr = window.devicePixelRatio || 1;
-      const rect = container.getBoundingClientRect();
-      width = rect.width;
-      height = rect.height;
+      width = newWidth;
+      height = newHeight;
 
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       ctx.scale(dpr, dpr);
       
       generateParticles();
+      initialized = true;
     };
 
     const generateParticles = () => {
@@ -186,6 +189,11 @@ export const ParticleSystem: React.FC<ParticleSystemProps> = ({ scrollProgress }
       ctx.fillStyle = '#F5F4F0';
       ctx.fillRect(0, 0, width, height);
 
+      if (!initialized) {
+        animationFrameId = requestAnimationFrame(render);
+        return;
+      }
+
       // We normalize scroll progress for the animation window we care about
       let p = prefersReducedMotion ? 1 : progressRef.current;
       
@@ -272,17 +280,26 @@ export const ParticleSystem: React.FC<ParticleSystemProps> = ({ scrollProgress }
       animationFrameId = requestAnimationFrame(render);
     };
 
-    initCanvas();
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        initCanvas(entry.contentRect.width, entry.contentRect.height);
+      }
+    });
+
+    if (container) {
+      resizeObserver.observe(container);
+    }
+    
+    // Initial size in case ResizeObserver is slow
+    const initialRect = container.getBoundingClientRect();
+    if (initialRect.width > 0 && initialRect.height > 0) {
+      initCanvas(initialRect.width, initialRect.height);
+    }
+    
     render();
 
-    const handleResize = () => {
-      initCanvas();
-    };
-
-    window.addEventListener('resize', handleResize);
-
     return () => {
-      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       if (!prefersReducedMotion) {
         window.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseleave', handleMouseLeave);
