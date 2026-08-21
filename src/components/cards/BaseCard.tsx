@@ -739,13 +739,8 @@ export const BaseCard: React.FC<BaseCardProps> = ({
     e: React.PointerEvent,
     anchor: AnchorPosition
   ) => {
-    e.stopPropagation();
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-
-    finishDraggingConnection(
-      object.id,
-      anchor
-    );
+    // Let event bubble to Canvas.tsx which handles finishing the connection via snapping
   };
 
   /*
