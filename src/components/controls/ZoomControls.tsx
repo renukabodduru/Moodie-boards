@@ -28,7 +28,7 @@ export const ZoomControls: React.FC = () => {
   const zoomPercent = Math.round(zoom * 100);
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 bg-white/90 backdrop-blur-md border border-slate-200 shadow-2xl rounded-2xl p-1.5 flex items-center gap-1.5 text-slate-700 select-none">
+    <div className="fixed bottom-28 md:bottom-6 right-4 md:right-6 z-40 bg-white/90 backdrop-blur-md border border-slate-200 shadow-2xl rounded-2xl p-1.5 flex items-center gap-1.5 text-slate-700 select-none">
       {/* Undo & Redo */}
       <button
         onClick={undo}

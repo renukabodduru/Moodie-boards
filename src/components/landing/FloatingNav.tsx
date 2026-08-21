@@ -29,7 +29,7 @@ export const FloatingNav: React.FC = () => {
         </span>
       </div>
 
-      <nav className="hidden md:flex items-center gap-8 px-6 py-2">
+      <nav className="flex items-center gap-4 md:gap-8 px-2 md:px-6 py-2">
         <motion.button
           onClick={() => setViewMode('dashboard')}
           initial={{ opacity: 0, y: -10 }}

@@ -711,6 +711,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
     anchor: AnchorPosition
   ) => {
     e.stopPropagation();
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
 
     const canvasX =
       (e.clientX - pan.x) /
@@ -739,6 +740,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
     anchor: AnchorPosition
   ) => {
     e.stopPropagation();
+    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
 
     finishDraggingConnection(
       object.id,
@@ -1404,6 +1406,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                       `
                   }
                   z-50
+                  touch-none
                 `}
                 title={`Connect from ${position}`}
               />
