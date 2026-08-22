@@ -478,8 +478,8 @@ export const BaseCard: React.FC<BaseCardProps> = ({
           let maxRight = object.x + 320;
           const children = boardObjects.filter((o) => o.parentId === object.id);
           children.forEach((child) => {
-            maxBottom = Math.max(maxBottom, child.y + child.height + 20);
-            maxRight = Math.max(maxRight, child.x + child.width + 20);
+            maxBottom = Math.max(maxBottom, child.y + child.height + 40);
+            maxRight = Math.max(maxRight, child.x + child.width + 40);
           });
           minWidth = Math.max(minWidth, maxRight - object.x);
           minHeight = Math.max(minHeight, maxBottom - object.y);
@@ -636,6 +636,10 @@ export const BaseCard: React.FC<BaseCardProps> = ({
         'none'
       ) {
         setResizeMode('none');
+        if (object.parentId) {
+          const pid = object.parentId;
+          setTimeout(() => reorderColumn(pid), 50);
+        }
       }
     };
 

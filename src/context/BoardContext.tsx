@@ -730,8 +730,8 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       let maxRight = col.x + 320; // Default minimum width
       
       children.forEach((child) => {
-        maxBottom = Math.max(maxBottom, child.y + child.height + 20);
-        maxRight = Math.max(maxRight, child.x + child.width + 20);
+        maxBottom = Math.max(maxBottom, child.y + child.height + 40);
+        maxRight = Math.max(maxRight, child.x + child.width + 40);
       });
 
       // Adjust column height and width to fit children
