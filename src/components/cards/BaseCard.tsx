@@ -470,6 +470,21 @@ export const BaseCard: React.FC<BaseCardProps> = ({
           resizeStartRef.current
             .startH;
 
+        let minWidth = 140;
+        let minHeight = 75;
+
+        if (object.type === 'column') {
+          let maxBottom = object.y + 70;
+          let maxRight = object.x + 320;
+          const children = boardObjects.filter((o) => o.parentId === object.id);
+          children.forEach((child) => {
+            maxBottom = Math.max(maxBottom, child.y + child.height + 20);
+            maxRight = Math.max(maxRight, child.x + child.width + 20);
+          });
+          minWidth = Math.max(minWidth, maxRight - object.x);
+          minHeight = Math.max(minHeight, maxBottom - object.y);
+        }
+
         if (
           resizeMode ===
           'corner' ||
@@ -479,7 +494,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
             Math.max(
               resizeStartRef.current
                 .startW + dw,
-              140
+              minWidth
             );
         }
 
@@ -492,7 +507,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
             Math.max(
               resizeStartRef.current
                 .startH + dh,
-              75
+              minHeight
             );
         }
 
@@ -966,61 +981,75 @@ export const BaseCard: React.FC<BaseCardProps> = ({
                 </button>
 
                 {showColorPicker && (
-                  <div
-                    className="
-                      absolute
-                      top-8
-                      left-0
-                      bg-premium-canvas
-                      border
-                      border-premium
-                      rounded-xl
-                      p-2
-                      shadow-xl
-                      flex
-                      gap-1
-                      z-50
-                    "
-                  >
-                    {COLOR_PALETTE.map(
-                      (color) => (
-                        <button
-                          key={color}
-                          onClick={() => {
-                            selectedIds.forEach(
-                              (id) =>
-                                updateObject(
-                                  id,
-                                  {
-                                    style: {
-                                      ...object.style,
-                                      bg: color,
-                                    },
-                                  }
-                                )
-                            );
-
-                            setShowColorPicker(
-                              false
-                            );
-                          }}
-                          className="
-                            w-5
-                            h-5
-                            rounded-full
-                            border
-                            border-white/20
-                            hover:scale-110
-                            transition-transform
-                          "
-                          style={{
-                            backgroundColor:
-                              color,
-                          }}
-                        />
-                      )
-                    )}
-                  </div>
+                    <div
+                      className="
+                        absolute
+                        top-8
+                        left-0
+                        bg-premium-canvas
+                        border
+                        border-premium
+                        rounded-xl
+                        p-2
+                        shadow-xl
+                        flex
+                        flex-col
+                        gap-2
+                        z-50
+                      "
+                    >
+                      <div className="flex gap-1">
+                        {COLOR_PALETTE.map(
+                          (color) => (
+                            <button
+                              key={color}
+                              onClick={() => {
+                                selectedIds.forEach(
+                                  (id) =>
+                                    updateObject(
+                                      id,
+                                      {
+                                        style: {
+                                          ...object.style,
+                                          bg: color,
+                                        },
+                                      }
+                                    )
+                                );
+                                setShowColorPicker(
+                                  false
+                                );
+                              }}
+                              className="w-6 h-6 rounded-full border border-premium transition-transform hover:scale-110"
+                              style={{
+                                backgroundColor:
+                                  color,
+                              }}
+                              title={color}
+                            />
+                          )
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Color name or hex..."
+                        className="w-full bg-premium-canvas text-[11px] text-premium-black border border-premium/50 rounded-md px-2 py-1 focus:outline-none focus:border-neutral-400"
+                        onKeyDown={(e) => {
+                          e.stopPropagation();
+                          if (e.key === 'Enter') {
+                            const val = e.currentTarget.value;
+                            if (val) {
+                              selectedIds.forEach((id) =>
+                                updateObject(id, {
+                                  style: { ...object.style, bg: val },
+                                })
+                              );
+                              setShowColorPicker(false);
+                            }
+                          }
+                        }}
+                      />
+                    </div>
                 )}
               </div>
 
