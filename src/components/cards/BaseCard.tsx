@@ -95,10 +95,12 @@ export const BaseCard: React.FC<BaseCardProps> = ({
         y: number;
       }
     >;
+    primaryTargets?: string[];
   }>({
     mouseX: 0,
     mouseY: 0,
     initialPositions: {},
+    primaryTargets: [],
   });
 
   const currentDeltaRef = useRef<{
@@ -220,7 +222,20 @@ export const BaseCard: React.FC<BaseCardProps> = ({
       }
     > = {};
 
-    targets.forEach((id) => {
+    const getChildrenRecursively = (parentId: string): string[] => {
+      const children = boardObjects.filter(o => o.parentId === parentId);
+      return children.reduce((acc, child) => {
+        return [...acc, child.id, ...getChildrenRecursively(child.id)];
+      }, [] as string[]);
+    };
+
+    const draggedIds = new Set<string>();
+    targets.forEach(id => {
+      draggedIds.add(id);
+      getChildrenRecursively(id).forEach(childId => draggedIds.add(childId));
+    });
+
+    draggedIds.forEach((id) => {
       const targetObject =
         boardObjects.find(
           (item) =>
@@ -239,6 +254,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
       mouseX: e.clientX,
       mouseY: e.clientY,
       initialPositions,
+      primaryTargets: targets,
     };
 
     currentDeltaRef.current = {
@@ -599,6 +615,8 @@ export const BaseCard: React.FC<BaseCardProps> = ({
           }
         }
 
+        const primaryTargets = dragStartRef.current.primaryTargets || [];
+
         /*
          * Reset drag state.
          */
@@ -612,14 +630,15 @@ export const BaseCard: React.FC<BaseCardProps> = ({
           mouseX: 0,
           mouseY: 0,
           initialPositions: {},
+          primaryTargets: [],
         };
 
         setIsDragging(false);
         setActiveGuides([]);
         
-        // If we dropped into a column, update parentId for all dragged objects
+        // If we dropped into a column, update parentId for explicitly dragged objects
         if (hoveredColumnId) {
-          Object.keys(dragStartRef.current.initialPositions).forEach((id) => {
+          primaryTargets.forEach((id) => {
             updateObject(id, { parentId: hoveredColumnId });
           });
         }
