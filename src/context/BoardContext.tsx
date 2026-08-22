@@ -724,26 +724,23 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (children.length === 0) return prev;
 
       const updated = [...prev];
-      let currentY = col.y + 70; // Header padding
-
+      
+      // Calculate the max bottom and max right extent of all children to adjust column dimensions
+      let maxBottom = col.y + 70; // Minimum height for header
+      let maxRight = col.x + 320; // Default minimum width
+      
       children.forEach((child) => {
-        const childIndex = updated.findIndex((o) => o.id === child.id);
-        if (childIndex > -1) {
-          updated[childIndex] = {
-            ...updated[childIndex],
-            x: col.x + 20,
-            y: currentY,
-          };
-          currentY += updated[childIndex].height + 20;
-        }
+        maxBottom = Math.max(maxBottom, child.y + child.height + 20);
+        maxRight = Math.max(maxRight, child.x + child.width + 20);
       });
 
-      // Adjust column height to fit children
+      // Adjust column height and width to fit children
       const colIndex = updated.findIndex((o) => o.id === columnId);
       if (colIndex > -1) {
         updated[colIndex] = {
           ...updated[colIndex],
-          height: Math.max(currentY - col.y + 20, 200),
+          height: Math.max(maxBottom - col.y, 200),
+          width: Math.max(maxRight - col.x, 320),
         };
       }
 

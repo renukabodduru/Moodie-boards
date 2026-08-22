@@ -52,9 +52,11 @@ export const ColumnCard: React.FC<{ object: CanvasObject }> = ({ object }) => {
 
       {!collapsed && (
         <div className="flex-1 w-full border-2 border-dashed border-premium rounded-xl p-2 flex flex-col items-center justify-center text-center">
-          <p className="text-[11px] text-neutral-400 font-medium">
-            Drag cards into this column container
-          </p>
+          {childCards.length === 0 && (
+            <p className="text-[11px] text-neutral-400 font-medium">
+              Drag cards into this column container
+            </p>
+          )}
         </div>
       )}
     </div>
