@@ -262,6 +262,20 @@ export const BaseCard: React.FC<BaseCardProps> = ({
       dy: 0,
     };
 
+    const sortedDraggedIds = Array.from(draggedIds).sort((a, b) => {
+      const objA = boardObjects.find(o => o.id === a);
+      const objB = boardObjects.find(o => o.id === b);
+      if (objB?.parentId === a) return -1; // Parent comes before child
+      if (objA?.parentId === b) return 1;  // Child comes after parent
+      return 0;
+    });
+
+    const maxZ = boardObjects.reduce((m, o) => Math.max(m, o.zIndex || 1), 1);
+    
+    sortedDraggedIds.forEach((id, idx) => {
+       updateObject(id, { zIndex: maxZ + 1 + idx });
+    });
+
     setIsDragging(true);
   };
 
@@ -544,78 +558,36 @@ export const BaseCard: React.FC<BaseCardProps> = ({
 
         /*
          * ------------------------------------------------------
-         * COLUMN NESTING
+         * PARENTING
          * ------------------------------------------------------
          */
 
-        const movedObjectStart =
-          positions[object.id];
-
-        if (movedObjectStart) {
-          const finalX =
-            movedObjectStart.x +
-            dx;
-
-          const finalY =
-            movedObjectStart.y +
-            dy;
-
-          const parentColumn =
-            boardObjects.find(
-              (other) =>
-                other.id !==
-                object.id &&
-                other.type ===
-                'column' &&
-                finalX >= other.x &&
-                finalX <=
-                other.x +
-                other.width &&
-                finalY >= other.y &&
-                finalY <=
-                other.y +
-                other.height
-            );
-
-          if (
-            parentColumn &&
-            object.parentId !==
-            parentColumn.id
-          ) {
-            updateObject(
-              object.id,
-              {
-                parentId:
-                  parentColumn.id,
-              }
-            );
-            setTimeout(() => reorderColumn(parentColumn.id), 50);
-            if (object.parentId) {
-              setTimeout(() => reorderColumn(object.parentId as string), 50);
-            }
-          } else if (
-            !parentColumn &&
-            object.parentId
-          ) {
-            const oldParentId = object.parentId;
-            updateObject(
-              object.id,
-              {
-                parentId:
-                  undefined,
-              }
-            );
-            setTimeout(() => reorderColumn(oldParentId), 50);
-          } else if (
-            parentColumn &&
-            object.parentId === parentColumn.id
-          ) {
-            // Dragged within same column, reorder!
-            setTimeout(() => reorderColumn(parentColumn.id), 50);
-          }
-        }
-
         const primaryTargets = dragStartRef.current.primaryTargets || [];
+
+        if (hoveredColumnId) {
+          primaryTargets.forEach((id) => {
+            const targetObj = boardObjects.find(o => o.id === id);
+            const oldParentId = targetObj?.parentId;
+            
+            updateObject(id, { parentId: hoveredColumnId });
+            
+            if (oldParentId && oldParentId !== hoveredColumnId) {
+              setTimeout(() => reorderColumn(oldParentId), 50);
+            }
+          });
+          setTimeout(() => reorderColumn(hoveredColumnId), 50);
+        } else {
+          primaryTargets.forEach((id) => {
+            const targetObj = boardObjects.find(o => o.id === id);
+            const oldParentId = targetObj?.parentId;
+            
+            updateObject(id, { parentId: undefined });
+            
+            if (oldParentId) {
+              setTimeout(() => reorderColumn(oldParentId), 50);
+            }
+          });
+        }
 
         /*
          * Reset drag state.
@@ -635,13 +607,6 @@ export const BaseCard: React.FC<BaseCardProps> = ({
 
         setIsDragging(false);
         setActiveGuides([]);
-        
-        // If we dropped into a column, update parentId for explicitly dragged objects
-        if (hoveredColumnId) {
-          primaryTargets.forEach((id) => {
-            updateObject(id, { parentId: hoveredColumnId });
-          });
-        }
         setHoveredColumnId(null);
       }
 
@@ -811,9 +776,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({
         width: `${object.width}px`,
         height: `${object.height}px`,
 
-        zIndex: isDragging
-          ? 9999
-          : object.zIndex || 1,
+        zIndex: object.zIndex || 1,
 
         transform:
           object.rotation
